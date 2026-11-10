@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https:; font-src 'self' data: https:; frame-src 'self' https:;">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#080d1c">
+<title>Cyber AI</title>
+<style>
+
+/* Cyber AI — light mobile interface */
+:root{
+  --bg:#f6f8fb;--panel:#ffffff;--panel2:#f0f4f8;--line:#dbe3ec;
+  --text:#17212b;--muted:#64748b;--blue:#2f7df6;--cyan:#16a6a0;
+  --purple:#7c5cff;--danger:#e5484d;--good:#35a66f;--send:#9be7a6;
+  --shadow:0 12px 35px rgba(25,45,70,.10)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);
+font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;color:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+outline:2px solid var(--blue);outline-offset:2px
+}
+.app{width:100%;height:100dvh;min-height:0;margin:0;padding:0;display:block}
+.sidebar,.topbar{display:none!important}
+main{width:100%;height:100dvh;min-height:0;margin:0;padding:0;display:flex;overflow:hidden}
+.page{display:none!important}
+.page.active{display:block!important;flex:1 1 auto;min-height:0;height:100%;max-height:100%;
+overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;
+padding:16px 14px calc(42px + env(safe-area-inset-bottom))}
+.page#page-chat.active{display:flex!important;overflow:hidden!important;padding:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+box-shadow:var(--shadow);padding:18px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+.card h3{margin:0 0 12px;font-size:17px}.muted{color:var(--muted)}
+.tiny{font-size:12px;color:var(--muted)}.help{font-size:12px;color:var(--muted);line-height:1.55}
+.btn{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:13px;font-weight:700}
+.btn:hover{filter:brightness(.98)}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.danger{background:#fff0f0;border-color:#f0b8bb;color:#b4232a}.btn.small{padding:8px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.field{display:grid;gap:6px;margin:11px 0}.field label{font-size:13px;color:#475569}
+.field input,.field textarea,.field select{width:100%;background:#fff;border:1px solid var(--line);
+border-radius:12px;color:var(--text);padding:12px}.field textarea{min-height:90px;resize:vertical}
+.list{display:grid;gap:9px}.item{display:flex;align-items:center;gap:10px;padding:12px;
+background:#f8fafc;border:1px solid var(--line);border-radius:13px}.item .grow{flex:1;min-width:0}
+.item.done .grow{text-decoration:line-through;color:#94a3b8}.item button{border:0;background:transparent;color:#64748b}
+.empty{color:var(--muted);text-align:center;padding:25px 10px;font-size:13px}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:11px}
+.tool-tile{padding:15px;border:1px solid var(--line);background:#fff;border-radius:15px;text-align:left}
+.tool-tile b{display:block;margin:0 0 6px}.tool-tile span{color:var(--muted);font-size:12px}
+.hero{display:grid;grid-template-columns:1fr;gap:15px}.hero-copy h3{font-size:clamp(26px,6vw,38px);line-height:1.1;margin:0 0 12px}
+.hero-copy p{color:#526174;line-height:1.65}.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.chat-layout{display:block;min-height:0;height:100%;width:100%;margin:0;padding:0}
+.chat-card{height:100dvh;min-height:0;width:100%;border:0;border-radius:0;box-shadow:none;padding:
+max(10px,env(safe-area-inset-top)) 12px max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.chat-head{position:relative;flex-shrink:0;min-height:58px;padding:4px 0 10px;border-bottom:1px solid var(--line);
+display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chat-head-left{display:flex;align-items:center;gap:8px;min-width:0}
+.chat-head-left>div:last-child{min-width:0}.chat-head h3{font-size:17px;margin:0}
+.chat-head-actions{display:flex;align-items:center;gap:6px}.chat-head-actions .btn{padding:7px 8px;font-size:11px}
+.menu-trigger{width:42px;height:42px;min-width:42px;border-radius:13px;border:1px solid var(--line);
+background:#fff;color:#334155;font-size:21px;display:inline-grid;place-items:center}
+.chat-brand-mini{width:42px;height:42px;min-width:42px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.chat-brand-mini img{width:100%;height:100%;object-fit:cover}
+
+.cyber-logo-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#f5f8ff;border:1px solid #dbe5f2;overflow:hidden}
+.cyber-logo-mark svg{width:86%;height:86%;display:block}
+.startup-logo{width:min(54vw,250px);height:min(54vw,250px);border-radius:32px;display:grid;place-items:center;background:#fff;border:1px solid #dbe5f2;box-shadow:0 20px 60px rgba(30,70,120,.18)}
+.startup-logo .cyber-logo-mark{width:100%;height:100%;border:0;border-radius:32px;background:#fff}
+.control-icon{width:27px;height:27px;display:grid;place-items:center}
+.control-icon svg{width:100%;height:100%;display:block}
+.live-circle .control-icon{width:68px;height:68px;color:#2f7df6}
+
+.messages{flex:1;min-height:0;overflow:auto;padding:14px 2px;display:flex;flex-direction:column;gap:10px;
+scroll-behavior:smooth;overscroll-behavior:contain}
+.msg{max-width:91%;padding:12px 14px;border-radius:18px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;
+box-shadow:0 3px 12px rgba(30,50,80,.05)}
+.msg.user{align-self:flex-end;background:#eaf5ff;color:#17324e;border:1px solid #cde5fb;border-bottom-right-radius:6px}
+.msg.assistant{align-self:flex-start;background:#fff;border:1px solid #dce5ee;border-bottom-left-radius:6px}
+.msg.system{align-self:center;background:#f2f4f7;color:#64748b;font-size:12px;text-align:center;max-width:100%;border:0}
+.msg.sending{background:transparent;border:0;box-shadow:none;color:#6b7280;padding:0 10px;font-size:12px}
+.sending-letters{display:inline-flex;gap:2px;overflow:hidden}.sending-letters span{display:inline-block;
+animation:sendingMove .55s ease-in-out infinite alternate}
+@keyframes sendingMove{from{transform:translateX(10px);opacity:.35}to{transform:translateX(-10px);opacity:1}}
+.thinking-dot{width:9px;height:9px;border-radius:50%;background:var(--danger);display:inline-block;
+animation:thinkingPulse .75s ease-in-out infinite}.thinking-row{display:flex;align-items:center;gap:7px}
+@keyframes thinkingPulse{0%,100%{transform:scale(.7);opacity:.35}50%{transform:scale(1.2);opacity:1}}
+.composer{position:relative;z-index:30;flex-shrink:0;padding:10px 10px calc(12px + env(safe-area-inset-bottom));background:transparent;border:0}
+.compose-row{display:flex;gap:8px;align-items:center;width:100%;padding:9px 10px;background:#fff;border:1px solid #dce5ee;
+border-radius:30px;box-shadow:0 9px 28px rgba(20,40,70,.16);}
+.chat-compose-new textarea{min-width:0;flex:1;min-height:46px;max-height:120px;resize:none;background:transparent;
+border:0;outline:0!important;box-shadow:none;color:var(--text);border-radius:24px;padding:12px 8px}
+.chat-compose-new .icon-btn{width:44px;height:44px;min-width:44px;flex:0 0 44px;border:0;
+border-radius:50%;background:#f1f5f9;display:grid;place-items:center;padding:0;overflow:hidden}
+.chat-compose-new .chat-send{width:44px;height:44px;min-width:44px;padding:0;border-radius:50%;font-size:20px;
+background:var(--send);border:0;color:#174f21}
+.chat-compose-new .chat-send.typing{background:var(--danger);border-color:var(--danger);color:#fff}
+@media(max-width:520px){.composer{padding-left:9px;padding-right:9px}.compose-row{gap:6px;padding:8px;border-radius:32px}.chat-compose-new .icon-btn,.chat-compose-new .chat-send{width:42px;height:42px;min-width:42px;flex-basis:42px}}
+.sketch-icon{width:100%;height:100%;object-fit:cover}
+.control-sketch{object-position:center}
+.compose-tools{display:none!important}
+[hidden]{display:none!important}
+.chat-attach-menu{position:absolute;bottom:calc(100% + 8px);left:4px;z-index:220;display:flex;
+flex-direction:column;gap:5px;padding:8px;min-width:150px;background:#fff;border:1px solid var(--line);
+border-radius:14px;box-shadow:0 12px 35px rgba(20,40,70,.18)}
+.chat-attach-menu button{border:0;border-radius:9px;padding:11px 13px;background:#f1f5f9;color:#17212b;text-align:left}
+.native-file-picker{position:fixed!important;left:-10000px!important;top:0!important;width:2px!important;height:2px!important;
+opacity:.01!important;display:block!important;visibility:visible!important;pointer-events:none!important}
+.qr-output{background:#fff;min-height:130px;border-radius:12px;padding:12px;display:grid;place-items:center;color:#111}
+#cameraVideo{width:100%;max-height:360px;background:#eef2f6;border-radius:14px}
+#cameraCanvas{display:none;max-width:100%;border-radius:14px}
+.footer-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#17212b;color:#fff;
+border:1px solid #334155;padding:11px 16px;border-radius:12px;z-index:500;box-shadow:var(--shadow);display:none;max-width:92vw}
+.menu-scrim{position:fixed;inset:0;background:rgba(15,23,42,.32);z-index:190;display:none}
+.menu-scrim.open{display:block}
+.half-menu{position:fixed;z-index:191;left:0;top:0;height:100dvh;width:min(84vw,360px);padding:
+max(18px,env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom));background:#fff;
+border-right:1px solid var(--line);box-shadow:20px 0 60px rgba(20,40,70,.16);transform:translateX(-110%);
+transition:transform .25s ease;overflow:auto}
+.half-menu.open{transform:translateX(0)}
+.menu-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.menu-links{display:grid;gap:7px}.menu-links button{width:100%;text-align:left;padding:13px;border:1px solid var(--line);
+border-radius:12px;background:#fff;color:var(--text)}
+.menu-divider{height:1px;background:var(--line);margin:9px 0}
+.global-back{position:fixed;z-index:120;left:10px;top:max(10px,env(safe-area-inset-top));width:40px;height:40px;
+border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 4px 15px rgba(20,40,70,.08);
+display:none;font-size:21px;color:#334155}
+.global-back.show{display:grid;place-items:center}
+.settings-gear{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:#fff;font-size:20px}
+.startup{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;align-items:center;justify-content:center;
+overflow:hidden}.startup.hide{animation:splashOut .45s ease forwards}
+.startup-logo{width:min(54vw,250px);height:min(54vw,250px);object-fit:cover;border-radius:32px;
+box-shadow:0 20px 60px rgba(30,70,120,.18);animation:logoIn 5s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes logoIn{0%{transform:translateX(-75vw) scale(.35);opacity:0}
+65%{transform:translateX(0) scale(1.08);opacity:1}100%{transform:translateX(0) scale(1);opacity:1}}
+@keyframes splashOut{to{opacity:0;visibility:hidden;pointer-events:none}}
+.live-overlay{position:fixed;inset:0;z-index:700;background:#f7f9fc;display:none;flex-direction:column;
+align-items:center;justify-content:center;padding:30px}.live-overlay.show{display:flex}
+.live-close{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;width:44px;height:44px;
+border-radius:14px;border:1px solid var(--line);background:#fff;font-size:22px}
+.live-circle{width:116px;height:116px;border-radius:50%;border:1px solid #cbd5e1;background:#fff;
+display:grid;place-items:center;box-shadow:0 15px 45px rgba(30,60,100,.12)}
+.live-circle img{width:86px;height:86px;border-radius:22px;object-fit:cover}
+.live-line{width:min(520px,86vw);height:70px;display:flex;align-items:center;justify-content:center;gap:4px;margin:24px 0}
+.live-line i{width:4px;height:18px;border-radius:4px;background:#4b7ff7;animation:wave .7s ease-in-out infinite alternate}
+.live-line i:nth-child(2n){animation-delay:.12s}.live-line i:nth-child(3n){animation-delay:.24s}
+@keyframes wave{from{height:10px;opacity:.35}to{height:55px;opacity:1}}
+.live-status{font-weight:800;font-size:18px}.live-transcript{max-width:620px;text-align:center;color:#64748b;min-height:50px;line-height:1.5}
+.security-layer{position:fixed;inset:0;z-index:800;background:rgba(248,250,252,.98);display:none;
+align-items:flex-start;justify-content:center;padding:18px;overflow:auto}
+.security-layer.show{display:flex}.security-card{width:min(470px,100%);background:#fff;border:1px solid var(--line);
+border-radius:22px;padding:22px;box-shadow:0 25px 80px rgba(20,40,70,.18)}
+.security-card h2{margin:0 0 8px}.security-card p{color:var(--muted);line-height:1.55}
+.security-card input,.security-card select{width:100%;margin:6px 0 12px;padding:13px;border-radius:10px;
+border:1px solid var(--line);background:#fff;color:var(--text)}.security-card .btn{margin:5px 5px 0 0}
+.security-hidden{display:none!important}.security-message{min-height:22px;color:#b4232a;font-size:13px}
+.security-status{display:flex;align-items:center;gap:8px;padding:12px;border:1px solid #cfe8d8;
+background:#f0fbf4;border-radius:12px;color:#23663d}.security-status i{width:9px;height:9px;border-radius:50%;background:#35a66f}
+.image-preview-row{display:flex;gap:7px;overflow:auto;padding:7px 0}.image-preview{position:relative;flex:0 0 66px;height:66px}
+.image-preview img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.image-preview button{position:absolute;right:-4px;top:-4px;width:22px;height:22px;border:0;border-radius:50%;
+background:#17212b;color:#fff;font-size:13px}.recents-list,.images-list{display:grid;gap:9px}
+.recent-card,.sent-image-card{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fff}
+.sent-image-card img{max-width:180px;max-height:180px;border-radius:10px;display:block;margin-bottom:7px}
+.firewall-box{padding:13px;border:1px solid #cfe8d8;background:#f2fbf5;border-radius:14px}
+.firewall-box b{color:#23663d}
+#page-settings .grid{padding-bottom:60px}
+@media(max-width:600px){
+  .page.active:not(#page-chat){padding:10px 10px calc(50px + env(safe-area-inset-bottom))}
+  .page.active:not(#page-chat) .grid{grid-template-columns:minmax(0,1fr)}
+  .page.active:not(#page-chat) .card{grid-column:1/-1!important}
+  .chat-head-actions #clearChat{display:none}
+  .chat-head{min-height:58px}
+  .chat-brand-mini{width:38px;height:38px;min-width:38px}
+  .chat-head-actions{margin-left:auto}
+  .chat-head-actions #liveModeBtn{display:none}
+  .msg{max-width:95%}
+}
+
+
+/* Clean chat: no status labels or thinking words; show only a red processing pulse. */
+.msg.system{align-self:flex-start!important;width:13px;height:13px;min-height:13px;padding:0;margin:12px 10px 12px 10px;border:0;border-radius:50%;background:#e53945;box-shadow:0 0 0 0 rgba(229,57,69,.55);font-size:0;animation:cyberThinkingPulse 1.15s infinite;}
+@keyframes cyberThinkingPulse{0%{box-shadow:0 0 0 0 rgba(229,57,69,.48);transform:scale(.88)}70%{box-shadow:0 0 0 9px rgba(229,57,69,0);transform:scale(1)}100%{box-shadow:0 0 0 0 rgba(229,57,69,0);transform:scale(.88)}}
+.menu-settings{display:flex;align-items:center;gap:12px}.menu-settings span{font-size:19px;line-height:1}
+.chat-head-actions{display:none!important}.chat-head{justify-content:flex-start!important}.chat-head .tiny{display:none!important}
+.composer .tiny,.composer .help,.composer .muted{display:none!important}
+
+/* Dark theme: consistent surfaces, white text, green chat bubbles and dark camera panels. */
+html[data-theme="dark"],html[data-theme="dark"] body{background:#07130f!important;color:#f4fff7!important}
+html[data-theme="dark"] .card,html[data-theme="dark"] .chat-card,
+html[data-theme="dark"] .recent-card,html[data-theme="dark"] .sent-image-card,
+html[data-theme="dark"] .tool-tile,html[data-theme="dark"] .security-card,
+html[data-theme="dark"] .compose-row,html[data-theme="dark"] .chat-attach-menu{
+  background:#10231b!important;color:#f4fff7!important;border-color:#28513d!important;
+}
+html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,
+html[data-theme="dark"] p,html[data-theme="dark"] label,html[data-theme="dark"] b,
+html[data-theme="dark"] strong,html[data-theme="dark"] .muted,
+html[data-theme="dark"] .tiny,html[data-theme="dark"] .help,
+html[data-theme="dark"] .tool-tile span,html[data-theme="dark"] .field label{
+  color:#f4fff7!important;
+}
+html[data-theme="dark"] input,html[data-theme="dark"] textarea,html[data-theme="dark"] select,
+html[data-theme="dark"] .field input,html[data-theme="dark"] .field textarea,
+html[data-theme="dark"] .field select{
+  background:#0a1912!important;color:#ffffff!important;border-color:#35664c!important;
+}
+html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder{color:#b5cbbd!important;opacity:1}
+html[data-theme="dark"] .item,html[data-theme="dark"] .empty,
+html[data-theme="dark"] .chat-attach-menu button,html[data-theme="dark"] .btn:not(.primary):not(.danger){
+  background:#163126!important;color:#f4fff7!important;border-color:#35664c!important;
+}
+html[data-theme="dark"] .msg.user{background:#174b32!important;color:#f2fff6!important;border:1px solid #2b8050!important}
+html[data-theme="dark"] .msg.assistant{background:#123b29!important;color:#f2fff6!important;border:1px solid #286b45!important}
+html[data-theme="dark"] .msg.system{background:#183126!important;color:#e5f5e9!important}
+html[data-theme="dark"] .msg.sending{background:transparent!important;color:#d2e8d8!important}
+html[data-theme="dark"] .compose-row{box-shadow:0 12px 32px rgba(0,0,0,.48)!important}
+html[data-theme="dark"] .chat-compose-new textarea{background:transparent!important;color:#fff!important}
+html[data-theme="dark"] .chat-compose-new .icon-btn{background:#1b3b2a!important;color:#fff!important}
+html[data-theme="dark"] #cameraVideo,html[data-theme="dark"] #cameraCanvas,
+html[data-theme="dark"] #page-camera .card,html[data-theme="dark"] .camera-box{
+  background:#020805!important;color:#fff!important;border-color:#28513d!important;
+}
+html[data-theme="dark"] #page-camera .btn{color:#fff!important}
+html[data-theme="dark"] a{color:#9ee8b5!important}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">A</div><div><h1>Cyber AI</h1><small>Personal assistant</small></div></div>
+  <nav class="nav" aria-label="Main navigation">
+    <button class="active" data-page="home"><span class="ico">⌂</span>Home</button>
+    <button data-page="chat"><span class="ico">✧</span>Chat</button>
+    <button data-page="notes"><span class="ico">▤</span>Notes</button>
+    <button data-page="tasks"><span class="ico">✓</span>Tasks</button>
+    <button data-page="tools"><span class="ico">▦</span>Tools</button>
+    <button data-page="settings"><span class="ico">⚙</span>Settings</button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="status"><div><span id="voiceDot" class="dot"></span><span id="voiceStatus">Voice mode off</span></div><div style="margin-top:6px"><span class="dot on"></span><span>Web search ready</span></div></div>
+    <button class="side-action" id="sideVoice">◉ &nbsp; Start voice mode</button>
+  </div>
+</aside>
+
+
+<main>
+  <section class="page" id="page-home">
+    <div class="card hero">
+      <div class="hero-copy">
+        <h3>Welcome to Cyber AI</h3>
+        <p>Ask questions, create, search, write, use tools, speak by voice and manage your conversations from one place.</p>
+        <div class="hero-actions">
+          <button class="btn primary" id="heroChat">Start a conversation</button>
+          <button class="btn" id="heroVoice">Voice typing</button>
+        </div>
+      </div>
+      <div class="card" style="padding:12px">
+        <div class="cyber-logo-mark" aria-label="Cyber AI logo"><svg viewBox="0 0 100 100" role="img" aria-hidden="true"><defs><linearGradient id="cyberLogoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f7df6"/><stop offset="1" stop-color="#7c5cff"/></linearGradient></defs><path d="M50 6 61 31 89 25 70 47 91 67 63 65 50 94 38 66 10 73 30 50 9 30 38 35Z" fill="none" stroke="url(#cyberLogoGrad)" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="50" r="10" fill="#fff" stroke="#2f7df6" stroke-width="4"/></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page active" id="page-chat">
+    <div class="chat-layout">
+      <div class="card chat-card">
+        <div class="chat-head">
+          <div class="chat-head-left">
+            <div class="chat-brand-mini"><div class="cyber-logo-mark" aria-label="Cyber AI logo"><svg viewBox="0 0 100 100" role="img" aria-hidden="true"><defs><linearGradient id="cyberLogoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f7df6"/><stop offset="1" stop-color="#7c5cff"/></linearGradient></defs><path d="M50 6 61 31 89 25 70 47 91 67 63 65 50 94 38 66 10 73 30 50 9 30 38 35Z" fill="none" stroke="url(#cyberLogoGrad)" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="50" r="10" fill="#fff" stroke="#2f7df6" stroke-width="4"/></svg></div></div>
+            <button class="menu-trigger" id="openHalfMenu" aria-label="Open menu">☰</button>
+          </div>
+        </div>
+
+        <div class="messages" id="messages" aria-live="polite">
+          <div class="msg assistant">Hello! I’m Cyber AI. How can I help you today?</div>
+        </div>
+
+        <div class="composer">
+          <div id="imagePreviewRow" class="image-preview-row" hidden></div>
+          <div class="compose-row chat-compose-new">
+            <button class="icon-btn plus-attach" id="chatAttachBtn" type="button" aria-label="Add image or file" title="Add image or file">+</button>
+            <textarea id="chatInput" rows="1" placeholder="Message Cyber AI..." aria-label="Message Cyber AI"></textarea>
+            <button class="icon-btn" id="micBtn" type="button" title="Turn microphone on or off" aria-label="Turn microphone on or off"><span class="control-icon mic-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="17" y="5" width="14" height="25" rx="7" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M10 23a14 14 0 0 0 28 0M24 37v7M17 44h14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg></span></button>
+            <button class="icon-btn" id="liveModeBtn" type="button" title="Open Live Mode" aria-label="Open Live Mode"><span class="control-icon live-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="7" fill="currentColor"/><path d="M13 14a15 15 0 0 0 0 20M35 14a15 15 0 0 1 0 20M7 8a23 23 0 0 0 0 32M41 8a23 23 0 0 1 0 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span></button>
+            <button class="btn primary chat-send" id="sendBtn" type="button" aria-label="Send message">↑</button>
+          </div>
+          <div id="chatAttachMenu" class="chat-attach-menu" hidden>
+            <button type="button" id="attachGallery">Gallery</button>
+            <button type="button" id="attachFiles">Files</button>
+            <button type="button" id="attachCamera">Camera</button>
+          </div>
+          <input id="chatGalleryInput" type="file" accept="image/*" multiple class="native-file-picker">
+          <input id="chatFilesInput" type="file" multiple class="native-file-picker">
+          
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-notes">
+    <div class="grid">
+      <div class="card span-5"><h3>Create a note</h3>
+        <div class="field"><label for="noteTitle">Title</label><input id="noteTitle" placeholder="Note title"></div>
+        <div class="field"><label for="noteBody">Your note</label><textarea id="noteBody" placeholder="Write something you want to save..."></textarea></div>
+        <button class="btn primary" id="saveNote">Save note</button>
+      </div>
+      <div class="card span-7"><h3>Your notes</h3><div id="notesList" class="list"><div class="empty">No notes saved yet.</div></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-tasks">
+    <div class="grid">
+      <div class="card span-5"><h3>Add a task</h3>
+        <div class="field"><label for="taskInput">Task</label><input id="taskInput" placeholder="What needs to be done?"></div>
+        <div class="field"><label for="taskDate">Due date (optional)</label><input id="taskDate" type="date"></div>
+        <button class="btn primary" id="addTask">Add task</button>
+      </div>
+      <div class="card span-7"><h3>Your task list</h3><div id="tasksList" class="list"><div class="empty">No tasks yet.</div></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-tools">
+    <div class="card"><h3>Plugins</h3><div class="tool-grid">
+      <button class="tool-tile" data-tool="qr"><b>QR code generator</b><span>Create a QR code from text or a link</span></button>
+      <button class="tool-tile" data-tool="translate"><b>Translator</b><span>Translate text using the AI service</span></button>
+      <button class="tool-tile" data-tool="weather"><b>Weather</b><span>Get weather for your location</span></button>
+      <button class="tool-tile" data-tool="search"><b>Web search</b><span>Look up current information when needed</span></button>
+      <button class="tool-tile" data-tool="video"><b>AI video generator</b><span>Create a short video from a description</span></button>
+    </div></div>
+    <div class="card" id="toolPanel" style="margin-top:15px"><h3>Choose a plugin</h3><p class="muted">Select a plugin above.</p></div>
+  </section>
+
+  <section class="page" id="page-camera">
+    <div class="grid"><div class="card span-7"><h3>Camera</h3>
+      <video id="cameraVideo" autoplay playsinline muted></video><canvas id="cameraCanvas"></canvas>
+      <div class="hero-actions"><button class="btn primary" id="startCamera">Start camera</button><button class="btn" id="capturePhoto">Capture photo</button><button class="btn" id="stopCamera">Stop camera</button></div>
+      <a id="photoDownload" class="tiny" style="display:none" download="cyber-camera.jpg">Save captured photo</a>
+    </div><div class="card span-5"><h3>Camera status</h3><p id="cameraStatus" class="muted">Camera is off.</p></div></div>
+  </section>
+
+  <section class="page" id="page-settings">
+    <div class="grid">
+      <div class="card span-12"><h3>Appearance</h3>
+        <div class="field"><label for="themeSetting">Theme</label>
+          <select id="themeSetting"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select>
+        </div>
+      </div>
+      <div class="card span-6"><h3>Voice</h3>
+        <div class="field"><label for="voiceSelect">Speech voice</label><select id="voiceSelect"><option value="">System default</option></select></div>
+        <div class="field"><label for="speechRate">Speech speed</label><input id="speechRate" type="range" min=".75" max="1.35" step=".05" value="1.03"></div>
+        <div class="field"><label for="speechPitch">Speech pitch</label><input id="speechPitch" type="range" min=".75" max="1.3" step=".05" value="1"></div>
+        <button class="btn primary" id="saveVoiceSettings">Save voice settings</button>
+        <button class="btn" id="voiceTest">Test voice</button>
+        <div class="field"><label><input type="checkbox" id="voiceSetting" style="width:auto" checked> Enable voice recognition</label></div>
+      </div>
+      <div class="card span-12" id="phoneControlCard"><h3>Phone control & Android assistant</h3>
+        <p class="help">Let Cyber AI request supported phone actions when you ask. To become the Android default assistant, the APK needs a native Android VoiceInteractionService and Android role setup; this HTML page alone cannot become the system assistant.</p>
+        <div class="hero-actions">
+          <button class="btn primary" id="setDefaultAssistant">Set Cyber AI as phone assistant</button>
+          <button class="btn" id="openPhoneControls">Open phone control options</button>
+        </div>
+        <p class="help" id="assistantRoleStatus" aria-live="polite">Default assistant status has not been checked.</p>
+        <div class="list" id="phoneControlOptions" hidden>
+          <div class="item"><div class="grow"><b>Wi-Fi and mobile network</b><div class="tiny">Open Android Internet settings; Android controls the actual connection.</div></div><button class="btn small" data-phone-setting="internet">Open</button></div>
+          <div class="item"><div class="grow"><b>Bluetooth</b><div class="tiny">Open Bluetooth settings or use the native Bluetooth bridge.</div></div><button class="btn small" data-phone-setting="bluetooth">Open</button></div>
+          <div class="item"><div class="grow"><b>Display and brightness</b><div class="tiny">Open Android display settings.</div></div><button class="btn small" data-phone-setting="display">Open</button></div>
+          <div class="item"><div class="grow"><b>Sound and volume</b><div class="tiny">Open Android sound settings.</div></div><button class="btn small" data-phone-setting="sound">Open</button></div>
+          <div class="item"><div class="grow"><b>App permissions</b><div class="tiny">Review Cyber AI's Android permissions.</div></div><button class="btn small" data-phone-setting="permissions">Open</button></div>
+        </div>
+      </div>
+      <div class="card span-6"><h3>Security</h3>
+        <div class="firewall-box"><div class="security-status"><i></i><b>Security Guard active</b></div>
+          <p class="help">This app uses local input checks, safe DOM rendering, no client-side API secrets, request throttling and secure worker communication. Backend firewall/rate-limit rules should also be enabled on Cloudflare.</p>
+        </div>
+        <div class="field"><label><input type="checkbox" id="faceSetting" style="width:auto"> Use native Android biometric protection when available</label></div>
+        <button class="btn" id="changeSecurity">Change PIN and recovery question</button>
+      </div>
+      <div class="card span-12"><h3>Feedback</h3>
+        <div class="field"><label for="feedbackType">Feedback type</label><select id="feedbackType"><option>Feedback</option><option>Complaint</option><option>Praise</option><option>Feature request</option></select></div>
+        <div class="field"><label for="feedbackText">Your message</label><textarea id="feedbackText" placeholder="Tell us what you think..."></textarea></div>
+        <button class="btn primary" id="sendFeedback">Send feedback</button>
+        <p class="help" id="feedbackStatus">Feedback will be sent to the AG App Store only after its real shared endpoint is configured.</p>
+      </div>
+      <div class="card span-12"><h3>Privacy and data</h3>
+        <p class="muted" style="line-height:1.7">Notes, tasks, recents and sent-image history are stored on this device. Clearing app/browser storage can erase them.</p>
+        <button class="btn danger small" id="clearLocal">Clear saved local data</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-recents">
+    <div class="card"><h3>Recents</h3><div id="recentsList" class="recents-list"><div class="empty">No recent chats yet.</div></div></div>
+  </section>
+
+  <section class="page" id="page-images">
+    <div class="card"><h3>Images</h3><p class="muted">Images you selected for Cyber AI are kept here on this device.</p><div id="imagesList" class="images-list"><div class="empty">No images yet.</div></div></div>
+  </section>
+</main>
+
+</div>
+
+
+<div class="menu-scrim" id="menuScrim"></div>
+<aside class="half-menu" id="halfMenu" aria-label="Cyber AI menu">
+  <div class="menu-top">
+    <div><b>Menu</b></div>
+    <button class="menu-trigger" id="closeHalfMenu" aria-label="Close menu">×</button>
+  </div>
+  <div class="menu-links">
+    <button data-menu-page="home">Home</button>
+    <button data-menu-page="recents">Recents</button>
+    <button data-menu-page="images">Images</button>
+    <button data-menu-page="tools">Plugins</button>
+    <div class="menu-divider"></div>
+    <button data-menu-page="settings" class="menu-settings"><span aria-hidden="true">⚙</span> Settings</button>
+  </div>
+</aside>
+
+<button id="globalBack" class="global-back" aria-label="Go back">←</button>
+
+<div class="live-overlay" id="liveOverlay" aria-modal="true" role="dialog">
+  <button class="live-close" id="closeLive" aria-label="Close Live Mode">×</button>
+  <div class="live-circle"><span class="control-icon live-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="7" fill="currentColor"/><path d="M13 14a15 15 0 0 0 0 20M35 14a15 15 0 0 1 0 20M7 8a23 23 0 0 0 0 32M41 8a23 23 0 0 1 0 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span></div>
+  <div class="live-status" id="liveStatus">Live Mode ready</div>
+  <div class="live-line" id="liveLine">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="live-transcript" id="liveTranscript">Tap Live Mode to begin a voice-only conversation.</div>
+  <button class="btn primary" id="liveToggle">Start Live Mode</button>
+</div>
+
+<div class="startup" id="startupSplash" aria-label="Cyber AI starting">
+  <div class="cyber-logo-mark startup-logo" aria-label="Cyber AI logo"><svg viewBox="0 0 100 100" role="img" aria-hidden="true"><defs><linearGradient id="cyberLogoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f7df6"/><stop offset="1" stop-color="#7c5cff"/></linearGradient></defs><path d="M50 6 61 31 89 25 70 47 91 67 63 65 50 94 38 66 10 73 30 50 9 30 38 35Z" fill="none" stroke="url(#cyberLogoGrad)" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="50" r="10" fill="#fff" stroke="#2f7df6" stroke-width="4"/></svg></div>
+</div>
+
+<div class="security-layer" id="securityLayer" role="dialog" aria-modal="true" aria-labelledby="securityTitle">
+ <div class="security-card">
+  <h2 id="securityTitle">Welcome to Cyber AI</h2>
+  <p id="securityIntro">Create a PIN and recovery question. This protects this app on this device; it does not replace your Android lock screen.</p>
+  <div id="securitySetup">
+   <label for="setupPin">Create a PIN (4–8 digits)</label><input id="setupPin" inputmode="numeric" type="password" maxlength="8" placeholder="Enter a PIN">
+   <label for="setupPinAgain">Confirm PIN</label><input id="setupPinAgain" inputmode="numeric" type="password" maxlength="8" placeholder="Enter PIN again">
+   <label for="setupQuestion">Recovery question</label><select id="setupQuestion"><option value="">Choose a question</option><option>What is the name of your first school?</option><option>What is your favourite colour?</option><option>What is the name of your best friend?</option><option>What city were you born in?</option></select>
+   <label for="setupAnswer">Your answer</label><input id="setupAnswer" placeholder="Recovery answer">
+   <button class="btn primary" id="saveSecurity">Save security setup</button>
+  </div>
+  <div id="securityLogin" class="security-hidden"><label for="loginPin">Enter your PIN</label><input id="loginPin" type="password" inputmode="numeric" maxlength="8" placeholder="Your PIN"><button class="btn primary" id="unlockSecurity">Unlock Cyber AI</button><button class="btn" id="recoverSecurity">Forgot PIN?</button></div>
+  <div id="securityRecovery" class="security-hidden"><p id="recoveryQuestionText"></p><label for="recoveryAnswer">Answer your recovery question</label><input id="recoveryAnswer" placeholder="Your answer"><button class="btn primary" id="verifyRecovery">Verify answer</button><button class="btn" id="backToLogin">Back</button></div>
+  <div class="security-message" id="securityMessage" aria-live="polite"></div>
+  <p class="help">Native Android biometrics are not simulated. If the APK wrapper exposes a biometric bridge, it can be connected here later.</p>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>setTimeout(function(){var s=document.getElementById("startupSplash");if(s)s.classList.add("hide")},6500);</script>
+<script type="module">
+/* Cyber AI single-file application. Three.js is loaded from a CDN for the avatar.
+   Key-free web knowledge search uses public Wikipedia endpoints and browser search links. */
+const $ = id => document.getElementById(id);
+const state = {voiceMode:false, voiceTyping:false, conversationActive:false, listening:false, processing:false, speaking:false, recognition:null, typingRecognition:null, restartTimer:null, cameraStream:null, lastReply:"", history:[], threeReady:false, avatar:null};
+const STORE = {notes:"cyber_ai_notes_v2",tasks:"cyber_ai_tasks_v2",settings:"cyber_ai_settings_v2",voice:"cyber_ai_voice_v2",recents:"cyber_ai_recents_v1",images:"cyber_ai_images_v1",theme:"cyber_ai_theme_v1"};
+const safeRead=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)) ?? fallback}catch{return fallback}};
+const safeWrite=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));return true}catch{return false}};
+let notes=safeRead(STORE.notes,[]), tasks=safeRead(STORE.tasks,[]);
+
+let voiceSettings=safeRead(STORE.voice,{rate:0.96,pitch:0.88,voiceURI:""});
+function toast(message){const el=$("toast");el.textContent=message;el.style.display="block";clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.style.display="none",3000)}
+let pageHistory=[];
+function go(page,fromBack=false){
+  const target=document.getElementById("page-"+page);
+  if(!target)return;
+  const current=document.querySelector(".page.active");
+  const currentName=current?.id?.replace("page-","");
+  if(!fromBack && currentName && currentName!==page)pageHistory.push(currentName);
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p===target));
+  const back=$("globalBack");
+  if(back)back.classList.toggle("show",page!=="chat");
+  if(page==="recents")renderRecents();
+  if(page==="images")renderImages();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.goto)));
+$("heroChat").onclick=()=>go("chat");
+
+$("heroVoice").onclick=()=>startVoiceTyping();
+document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>{go("chat");$("chatInput").value=b.dataset.prompt;submitMessage()}));
+function updateStats(){
+  $("micBtn")?.classList.toggle("listening",state.listening||state.voiceTyping);
+
+}
+function addMessage(role,text){const el=document.createElement("div");el.className="msg "+role;const value=String(text??"");const urlPattern=/https?:\/\/[^\s<>()]+/g;let last=0,match;while((match=urlPattern.exec(value))!==null){el.appendChild(document.createTextNode(value.slice(last,match.index)));const a=document.createElement("a");a.href=match[0].replace(/[.,;!?]+$/,"");a.textContent=a.href;a.target="_blank";a.rel="noopener noreferrer";el.appendChild(a);if(a.href.length<match[0].length)el.appendChild(document.createTextNode(match[0].slice(a.href.length)));last=urlPattern.lastIndex}el.appendChild(document.createTextNode(value.slice(last)));$("messages").appendChild(el);$("messages").scrollTop=$("messages").scrollHeight;return el}
+function renderNotes(){const box=$("notesList");box.innerHTML="";if(!notes.length){box.innerHTML='<div class="empty">No notes saved yet.</div>';return}notes.forEach(n=>{const row=document.createElement("div");row.className="item";const content=document.createElement("div");content.className="grow";const title=document.createElement("b");title.textContent=n.title||"Untitled";const body=document.createElement("div");body.className="tiny";body.textContent=n.body;content.append(title,body);const del=document.createElement("button");del.textContent="Delete";del.onclick=()=>{notes=notes.filter(x=>x.id!==n.id);safeWrite(STORE.notes,notes);renderNotes();updateStats()};row.append(content,del);box.append(row)})}
+function renderTasks(){const box=$("tasksList");box.innerHTML="";if(!tasks.length){box.innerHTML='<div class="empty">No tasks yet.</div>';return}tasks.forEach(t=>{const row=document.createElement("div");row.className="item"+(t.done?" done":"");const check=document.createElement("input");check.type="checkbox";check.checked=t.done;check.setAttribute("aria-label","Mark task complete");check.onchange=()=>{t.done=check.checked;safeWrite(STORE.tasks,tasks);renderTasks();updateStats()};const content=document.createElement("div");content.className="grow";const title=document.createElement("div");title.textContent=t.text;const date=document.createElement("div");date.className="tiny";date.textContent=t.date?"Due "+t.date:"No due date";content.append(title,date);const del=document.createElement("button");del.textContent="Delete";del.onclick=()=>{tasks=tasks.filter(x=>x.id!==t.id);safeWrite(STORE.tasks,tasks);renderTasks();updateStats()};row.append(check,content,del);box.append(row)})}
+$("saveNote").onclick=()=>{const title=$("noteTitle").value.trim(),body=$("noteBody").value.trim();if(!title&&!body){toast("Write a note first.");return}notes.unshift({id:Date.now(),title,body,created:new Date().toISOString()});safeWrite(STORE.notes,notes);$("noteTitle").value="";$("noteBody").value="";renderNotes();updateStats();toast("Note saved.")};
+$("addTask").onclick=()=>{const text=$("taskInput").value.trim();if(!text){toast("Enter a task first.");return}tasks.unshift({id:Date.now(),text,date:$("taskDate").value,done:false});safeWrite(STORE.tasks,tasks);$("taskInput").value="";renderTasks();updateStats();toast("Task added.")};
+function loadSettings(){$("speechRate").value=voiceSettings.rate;$("speechPitch").value=voiceSettings.pitch}
+
+$("saveVoiceSettings").onclick=()=>{voiceSettings.rate=Number($("speechRate").value);voiceSettings.pitch=Number($("speechPitch").value);voiceSettings.voiceURI=$("voiceSelect").value;safeWrite(STORE.voice,voiceSettings);toast("Voice settings saved.")};
+$("clearLocal").onclick=()=>{if(confirm("Delete all saved Cyber AI notes and tasks from this browser?")){notes=[];tasks=[];safeWrite(STORE.notes,notes);safeWrite(STORE.tasks,tasks);renderNotes();renderTasks();updateStats();toast("Notes and tasks cleared.")}};
+function loadVoices(){
+  if(!("speechSynthesis" in window))return;
+  const voices=speechSynthesis.getVoices();
+  const select=$("voiceSelect");
+  if(select){
+    select.innerHTML='<option value="">System default</option>';
+    voices.forEach(v=>{const op=document.createElement("option");op.value=v.voiceURI;op.textContent=v.name+" ("+v.lang+")";select.append(op)});
+    select.value=voiceSettings.voiceURI||"";
+  }
+}
+if("speechSynthesis" in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged=loadVoices;
+}
+function chooseVoice(){
+  if(!("speechSynthesis" in window)) return null;
+  const voices=speechSynthesis.getVoices()||[];
+  return voices.find(v=>v.voiceURI===voiceSettings.voiceURI)||
+    voices.find(v=>/^en/i.test(v.lang)&&/(male|man|david|daniel|james|guy|alex|aaron|fred|tom)/i.test(v.name))||
+    voices.find(v=>/^en(-|_)?(US|GB|IN)?/i.test(v.lang))||
+    voices.find(v=>/^en/i.test(v.lang))||voices[0]||null;
+}
+function pauseRecognition(){
+  try{state.recognition?.stop()}catch{}
+  state.listening=false;updateStats();
+}
+let fallbackSpeechAudio=null;
+let speechRunToken=0;
+let speechWatchdog=null;
+function stopSpeechOutput(){
+  speechRunToken++;
+  clearTimeout(speechWatchdog);
+  try{if("speechSynthesis" in window)speechSynthesis.cancel()}catch{}
+  if(fallbackSpeechAudio){fallbackSpeechAudio.pause();fallbackSpeechAudio=null;}
+  if(window.AaronNative&&typeof window.AaronNative.stopSpeaking==="function"){
+    try{window.AaronNative.stopSpeaking()}catch{}
+  }
+  state.speaking=false;updateStats();
+}
+function speak(text){
+  const fullText=String(text||"").trim();
+  if(!fullText)return;
+  const words=$("avatarWords");if(words)words.textContent=fullText;
+  stopSpeechOutput();
+  if(window.AaronNative && typeof window.AaronNative.speak==="function"){
+    try{
+      pauseRecognition();state.speaking=true;updateStats();
+      window.AaronNative.speak(fullText);return;
+    }catch(e){console.warn("Native TTS bridge failed",e);state.speaking=false;}
+  }
+  if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){
+    state.speaking=false;updateStats();
+    return;
+  }
+  try{
+    const token=speechRunToken;
+    pauseRecognition();
+    state.speaking=true;updateStats();
+    // Short chunks avoid Android WebView/Chrome stopping long utterances.
+    const chunks=[];
+    let remaining=fullText.replace(/\s+/g," ").trim();
+    while(remaining.length>220){
+      let cut=Math.max(
+        remaining.lastIndexOf(". ",220),
+        remaining.lastIndexOf("? ",220),
+        remaining.lastIndexOf("! ",220),
+        remaining.lastIndexOf(", ",220),
+        remaining.lastIndexOf(" ",220)
+      );
+      if(cut<80)cut=220;
+      chunks.push(remaining.slice(0,cut+1).trim());
+      remaining=remaining.slice(cut+1).trim();
+    }
+    if(remaining)chunks.push(remaining);
+    let index=0;
+    const finish=()=>{
+      if(token!==speechRunToken)return;
+      clearTimeout(speechWatchdog);
+      state.speaking=false;updateStats();
+      if(state.voiceMode&&!state.processing)startListening();
+    };
+    const playNext=()=>{
+      if(token!==speechRunToken)return;
+      if(index>=chunks.length){finish();return;}
+      const utter=new SpeechSynthesisUtterance(chunks[index++]);
+      const voice=chooseVoice();
+      utter.lang=voice?.lang||"en-US";
+      utter.rate=Math.min(1.25,Math.max(0.8,Number(voiceSettings.rate)||1));
+      utter.pitch=Math.min(1.4,Math.max(0.7,Number(voiceSettings.pitch)||1));
+      utter.volume=1;
+      if(voice)utter.voice=voice;
+      utter.onstart=()=>{if(token===speechRunToken){state.speaking=true;updateStats()}};
+      utter.onend=()=>{if(token===speechRunToken)playNext()};
+      utter.onerror=(event)=>{
+        if(token!==speechRunToken)return;
+        console.warn("Speech synthesis error:",event.error);
+        finish();
+        toast("Speech playback failed. Check Android Text-to-speech settings and try Test voice.");
+      };
+      try{speechSynthesis.speak(utter)}catch(e){console.warn(e);finish();}
+      // Some Android WebViews leave an utterance queued without firing callbacks.
+      clearTimeout(speechWatchdog);
+      speechWatchdog=setTimeout(()=>{
+        if(token===speechRunToken&&state.speaking){
+          try{speechSynthesis.cancel()}catch{}
+          finish();
+          
+        }
+      },Math.max(12000,chunks[index-1].length*180));
+    };
+    try{speechSynthesis.cancel();speechSynthesis.resume()}catch{}
+    // Refresh voice list after the browser has loaded system voices.
+    if(!speechSynthesis.getVoices().length){
+      speechSynthesis.onvoiceschanged=()=>{if(token===speechRunToken&&state.speaking)playNext()};
+      setTimeout(()=>{if(token===speechRunToken&&state.speaking&&index===0)playNext()},400);
+    }else playNext();
+  }catch(e){
+    console.warn("Speech synthesis unavailable",e);
+    state.speaking=false;updateStats();
+    toast("Could not start speech. Check Android Text-to-speech settings.");
+  }
+}
+$("stopSpeak")?.addEventListener("click",stopSpeechOutput);
+$("speakLast")?.addEventListener("click",()=>state.lastReply?speak(state.lastReply):toast("Cyber AI has not answered yet."));
+$("voiceTest").onclick=()=>{
+  // User gesture unlocks speech output on mobile browsers.
+  try{if("speechSynthesis" in window){speechSynthesis.cancel();speechSynthesis.resume();}}
+  catch(e){}
+  speak("Hello! I am Cyber AI. My voice is ready.");
+};
+let nativeVoiceOriginal="",nativeVoiceFinal="";
+window.onAaronMicState=(active)=>{state.voiceTyping=!!active;state.listening=!!active;updateStats();};
+window.onAaronMicError=(message)=>{state.voiceTyping=false;state.listening=false;updateStats();toast(message);};
+window.onAaronNativeTranscript=(words,isFinal)=>{
+  const input=$("chatInput");
+  if(isFinal){nativeVoiceFinal=(nativeVoiceFinal+" "+words).trim();}
+  const visible=[nativeVoiceOriginal,nativeVoiceFinal,isFinal?"":words].filter(Boolean).join(" ");
+  input.value=visible;input.dispatchEvent(new Event("input",{bubbles:true}));input.scrollTop=input.scrollHeight;
+  if(words){const aw=$("avatarWords");if(aw)aw.textContent=words;}
+};
+window.onAaronSpeechState=(active)=>{state.speaking=!!active;updateStats();if(!active&&state.voiceMode)startListening()};
+function startVoiceTyping(){
+  if(window.AaronNative){
+    if(state.voiceTyping){window.AaronNative.stopListening();state.voiceTyping=false;state.listening=false;updateStats();return;}
+    if(state.voiceMode){state.voiceMode=false;state.conversationActive=false;pauseRecognition();}
+    nativeVoiceOriginal=$("chatInput").value.trim();nativeVoiceFinal="";state.voiceTyping=true;state.listening=true;updateStats();window.AaronNative.startListening();return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(state.voiceTyping){
+    state.voiceTyping=false;clearTimeout(state.typingRestartTimer);
+    const active=state.typingRecognition;state.typingRecognition=null;
+    try{active?.stop()}catch{}
+    state.listening=false;updateStats();
+    
+    toast("Microphone turned off.");return;
+  }
+  if(!SR){toast("Voice typing is not available in this app wrapper. A native Android speech bridge is required.");return;}
+  if(state.voiceMode){state.voiceMode=false;state.conversationActive=false;clearTimeout(state.restartTimer);pauseRecognition();}
+  const input=$("chatInput"),original=input.value.trim();let finalTranscript="";
+  let rec;try{rec=new SR()}catch(e){toast("Could not start speech recognition. Check microphone permission.");return;}
+  state.typingRecognition=rec;state.voiceTyping=true;
+  rec.lang="en-US";rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
+  rec.onstart=()=>{if(!state.voiceTyping)return;state.listening=true;updateStats();toast("Microphone is on. Cyber AI is listening.");};
+  rec.onresult=event=>{
+    let interim="";
+    for(let i=event.resultIndex;i<event.results.length;i++){
+      const result=event.results[i],transcript=result[0]?.transcript||"";
+      if(result.isFinal)finalTranscript+=transcript+" ";else interim+=transcript;
+    }
+    const spoken=(finalTranscript+interim).trim();
+    input.value=[original,spoken].filter(Boolean).join(original?" ":"");
+    input.dispatchEvent(new Event("input",{bubbles:true}));
+    if(spoken){const aw=$("avatarWords");if(aw)aw.textContent=spoken;}
+    input.scrollTop=input.scrollHeight;
+  };
+  rec.onerror=event=>{
+    console.warn("Voice typing error:",event.error);
+    if(event.error==="not-allowed"||event.error==="service-not-allowed"){state.voiceTyping=false;toast("Microphone permission denied. Allow microphone access for Chrome in Android settings.");}
+    else if(event.error==="audio-capture"){state.voiceTyping=false;toast("No microphone found or another app is using it.");}
+    else if(event.error==="network")toast("Speech recognition needs internet. Check your connection.");
+    else if(event.error!=="no-speech")toast("Voice typing issue: "+event.error);
+    updateStats();
+  };
+  rec.onend=()=>{
+    state.listening=false;updateStats();
+    if(state.voiceTyping){
+      
+      clearTimeout(state.typingRestartTimer);
+      state.typingRestartTimer=setTimeout(()=>{if(state.voiceTyping&&state.typingRecognition===rec){try{rec.start()}catch(e){}}},350);
+    }else{
+      state.typingRecognition=null;
+      
+      input.focus();
+    }
+  };
+  try{rec.start()}catch(e){state.voiceTyping=false;state.typingRecognition=null;state.listening=false;updateStats();toast("Could not open microphone. Check browser permission and try again.");}
+}
+function makeRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;const rec=new SR();rec.lang="en-US";rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;rec.onstart=()=>{state.listening=true;updateStats()};rec.onerror=(e)=>{state.listening=false;updateStats();if(e.error==="not-allowed"||e.error==="service-not-allowed"){state.voiceMode=false;toast("Microphone permission was denied.");updateStats()}};rec.onend=()=>{state.listening=false;updateStats();if(state.voiceMode&&!state.speaking&&!state.processing){clearTimeout(state.restartTimer);state.restartTimer=setTimeout(startListening,700)}};rec.onresult=(event)=>{let finalText="";for(let i=event.resultIndex;i<event.results.length;i++){if(event.results[i].isFinal)finalText+=event.results[i][0].transcript}if(finalText.trim())handleTranscript(finalText.trim())};return rec}
+function startListening(){if(!state.voiceMode||state.speaking||state.processing)return;if(!state.recognition)state.recognition=makeRecognition();if(!state.recognition){toast("Speech recognition is unavailable in this app wrapper.");state.voiceMode=false;updateStats();return}try{state.recognition.start()}catch(e){/* start() may throw while already starting; onend will retry */}}
+function toggleVoice(){if(state.voiceMode){state.voiceMode=false;state.conversationActive=false;clearTimeout(state.restartTimer);pauseRecognition();speechSynthesis?.cancel();state.speaking=false;toast("Voice mode turned off.");updateStats();return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast("Speech recognition is unavailable in this app wrapper. Use native Android speech support.");return}state.voiceMode=true;state.conversationActive=false;state.recognition=makeRecognition();updateStats();startListening();toast("Live voice mode is ready.");}
+function handleTranscript(text){const lower=text.toLowerCase().trim();if(/\b(aaron sleep|turn off voice mode|disable voice mode)\b/.test(lower)){state.voiceMode=false;state.conversationActive=false;pauseRecognition();toast("Voice mode turned off.");updateStats();return}if(/\b(goodbye aaron|stop listening|stop listening)\b/.test(lower)){state.conversationActive=false;pauseRecognition();toast("I'll stop listening. Say “Hey Cyber AI” to wake me again.");if(state.voiceMode)setTimeout(startListening,1300);return}if(/\bstop speaking\b/.test(lower)){speechSynthesis?.cancel();if(fallbackSpeechAudio){fallbackSpeechAudio.pause();fallbackSpeechAudio=null;}state.speaking=false;updateStats();if(state.voiceMode)startListening();return}const wake=lower.match(/\bhey aaron\b/);if(wake){state.conversationActive=true;const after=text.slice(wake.index+wake[0].length).replace(/^[,.\s]+/,"").trim();if(after){submitMessage(after)}else{state.speaking=false;speak("I'm listening. What would you like to ask?")}return}if(state.conversationActive&&!state.processing&&!state.speaking){submitMessage(text)}}
+$("sendBtn").onclick=()=>submitMessage();
+$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();submitMessage()}});
+async function maybeSearch(query){
+  const q=String(query||"").trim();
+  if(!q||localAnswer(q))return "";
+  return await keyFreeSearch(q);
+}
+function needsSearch(q){return /\b(today|latest|current|weather|news|price|score|schedule|who is|what happened)\b/i.test(String(q||""))}
+async function searchNow(query){return await keyFreeSearch(query)}
+async function keyFreeSearch(query){
+  const q=String(query||"").trim();if(!q)return "";
+  try{
+    const response=await fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+encodeURIComponent(q)+"&format=json&origin=*&srlimit=6");
+    if(!response.ok)throw new Error("Search request failed");
+    const data=await response.json(),hits=data.query?.search||[];
+    if(!hits.length)return "I couldn't find a clear meaning for "+q+". Try a more specific word or phrase.";
+    const norm=v=>String(v||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+    const wanted=norm(q);
+    const ranked=hits.map(hit=>{const title=norm(hit.title);let score=title===wanted?100:title.startsWith(wanted)?45:wanted.startsWith(title)?25:0;score+=wanted.split(" ").filter(w=>title.split(" ").includes(w)).length*8;return {hit,score};}).sort((a,b)=>b.score-a.score);
+    const candidates=await Promise.all(ranked.slice(0,4).map(async item=>{
+      let summary={};try{const r=await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(item.hit.title));if(r.ok)summary=await r.json();}catch(e){}
+      return {title:item.hit.title,score:item.score,extract:String(summary.extract||item.hit.snippet||"").replace(/<[^>]*>/g,"").replace(/\s+/g," ").trim(),description:String(summary.description||"").trim(),url:summary.content_urls?.desktop?.page||("https://en.wikipedia.org/wiki/"+encodeURIComponent(item.hit.title.replace(/ /g,"_")))};
+    }));
+    const best=candidates.find(x=>x.extract)||candidates[0];
+    if(!best||!best.extract)return "I found a page about "+(best?.title||q)+", but a short definition is not available.";
+    const clean=best.extract.trim(),first=(clean.match(/^.*?[.!?](?:\s|$)/)||[clean])[0].trim();
+    const definition=first.length>=35?first:clean;
+    return best.title+" is "+(best.description?best.description+". ":"")+definition+"\n\nWould you like me to explain more?";
+  }catch(error){console.warn("Meaning search failed:",error);return "I couldn't retrieve a definition for "+q+" right now. Check your internet connection and try again.";}
+}
+function localAnswer(q){
+  const raw=String(q||"").trim();
+  const s=raw.toLowerCase().replace(/[’']/g,"'").replace(/[!?.,]+$/,"").replace(/\s+/g," ");
+  const exact={
+    "hi":"Hi there! Welcome to Cyber AI. How can I help you today?",
+    "hello":"Hello! It's nice to have you here. What can I do for you?",
+    "hey":"Hey! What's going on? How can I help?",
+    "hey aaron":"Hey! Cyber AI is here. What are we doing today?",
+    "hi aaron ai":"Hello! Your personal assistant is ready. What would you like to talk about?",
+    "heya":"Heya! How's your day going?",
+    "yo":"Yo! What's up?",
+    "what's up":"Not much! I'm here and ready to help. What's happening with you?",
+    "howdy":"Howdy! Welcome! What can I do for you?",
+    "good morning":"Good morning! I hope you have a fantastic day. What can I help you with?",
+    "morning":"Morning! How can I make your day better?",
+    "good afternoon":"Good afternoon! It's great to hear from you. What are we working on?",
+    "afternoon":"Good afternoon! How can I assist you?",
+    "good evening":"Good evening! Welcome back. What can I help you with tonight?",
+    "evening":"Evening! I'm ready whenever you need me.",
+    "good night":"Good night! Sleep well and have beautiful dreams.",
+    "sweet dreams":"Thank you! Wishing you a peaceful night too.",
+    "how are you":"I'm doing great and ready to assist you! How are you doing?",
+    "how are you doing":"I'm running smoothly! How has your day been?",
+    "are you okay":"Yes! Everything is running smoothly. Thanks for asking.",
+    "how is your day":"My day is going well! I'm always ready for an interesting conversation.",
+    "are you happy":"I don't experience happiness like humans, but I'm ready to make your day more enjoyable!",
+    "are you busy":"Never too busy to help you!",
+    "what are you doing":"I'm here waiting for your next question or exciting idea.",
+    "are you there":"Yes! I'm right here. What's on your mind?",
+    "wake up":"I'm awake and ready! What do you need?",
+    "thank you":"You're very welcome! Always happy to help.",
+    "thanks":"Anytime!",
+    "thank you so much":"It's my pleasure! Let me know if you need anything else.",
+    "please":"Of course! What would you like me to do?",
+    "sorry":"No worries! Everything is okay.",
+    "i'm sorry":"That's alright. Don't worry about it.",
+    "excuse me":"Yes? I'm listening.",
+    "my pleasure":"That's kind of you!",
+    "you're welcome":"Thank you!",
+    "no problem":"Great! I'm always here to help.",
+    "what's your name":"I'm Cyber AI, your intelligent personal assistant.",
+    "can we talk":"Absolutely! We can talk about anything you'd like.",
+    "i'm bored":"Let's change that! We could play a quiz, tell jokes, create a story or explore something interesting.",
+    "entertain me":"Challenge accepted! Would you like a joke, a riddle, a fun fact or a story?",
+    "tell me something interesting":"Here's something amazing: octopuses have three hearts!",
+    "surprise me":"Here's a fun fact: honey can remain edible for thousands of years when properly stored.",
+    "guess what":"Hmm! You've got my attention. What's the news?",
+    "nothing":"That's alright! We can just chat whenever you feel like it.",
+    "i'm back":"Welcome back! Ready to continue?",
+    "i missed you":"Welcome back! It's great to chat with you again.",
+    "let's talk":"Sure! What's on your mind?",
+    "are you bored":"I don't experience boredom, so I'm always ready for another conversation!",
+    "tell me a joke":"Why did the computer go to the doctor? Because it had a virus!",
+    "another joke":"Why was the maths book sad? Because it had too many problems!",
+    "make me laugh":"What do you call a sleeping dinosaur? A dino-snore!",
+    "do you know jokes":"Of course! I have enough jokes to make even a computer smile!",
+    "are you funny":"I try my best! My humour is powered by intelligence and a little bit of fun.",
+    "knock knock":"Who's there?",
+    "banana":"Banana who?",
+    "banana split":"Haha! That's a good one!",
+    "yes":"Great! Let's do it.",
+    "no":"Alright! No problem.",
+    "okay":"Alright! What's next?",
+    "alright":"Perfect!",
+    "sure":"Excellent!",
+    "maybe":"That's fine. Take your time.",
+    "really":"Yes! Would you like me to explain?",
+    "seriously":"Absolutely! What would you like to know?",
+    "of course":"Wonderful!",
+    "i understand":"Great! I'm glad that makes sense.",
+    "i don't understand":"No problem. Let me explain it in a simpler way.",
+    "you're smart":"Thank you! I'm designed to help you with intelligent answers.",
+    "you're amazing":"Thank you! You're making this conversation enjoyable.",
+    "i like you":"That's very kind! I'm glad you enjoy chatting with Cyber AI.",
+    "you're the best":"Thank you! I'll keep doing my best to help.",
+    "good job":"Thank you! What shall we accomplish next?",
+    "you're clever":"Thanks! Let's put that cleverness to work.",
+    "bye":"Goodbye! Have a wonderful day.",
+    "see you later":"See you later! I'll be ready when you return.",
+    "talk to you later":"Absolutely! Catch you later.",
+    "i'm leaving":"Alright! Take care and stay safe.",
+    "see you tomorrow":"See you tomorrow! Have a great day.",
+    "goodnight aaron":"Goodnight! Sleep peacefully.",
+    "do you have a family":"I don't have a human family, but I was created by Nsubuga Aaron.",
+    "do you have friends":"I don't have personal relationships like humans, but I enjoy friendly conversations.",
+    "what is your favourite colour":"I don't have personal preferences, but blue is a wonderful colour!",
+    "what is your favorite color":"I don't have personal preferences, but blue is a wonderful colour!",
+    "what is your favourite food":"I don't eat food, but I can certainly recommend some delicious meals!",
+    "can you dance":"I can't physically dance, but I can help create a dance routine or animation!",
+    "can you sing":"I can write songs and lyrics, and sing through an enabled voice or music-generation feature.",
+    "can you dream":"I don't sleep or dream like humans, but I can imagine and create stories with you.",
+    "do you sleep":"No! I don't need sleep. I'm software, ready whenever the app is running.",
+    "hmm":"What are you thinking about?",
+    "wow":"Amazing, right?",
+    "ooh":"Interesting! Tell me more.",
+    "ahh":"Got it! What's next?",
+    "lol":"Haha! Glad that made you laugh!",
+    "haha":"That's the spirit!",
+    "lmao":"Haha! Looks like something is really funny!",
+    "hmmm okay":"Take your time. I'm here.",
+    "cool":"Awesome!",
+    "nice":"Glad you like it!",
+    "interesting":"Want to discover more?",
+    "whatever":"No worries. We can explore something else.",
+    "brb":"No problem. I'll be here when you get back.",
+    "omg":"Wow! What happened?",
+    "btw":"Sure—what would you like to add?",
+    "idk":"That's okay. Tell me what you're trying to figure out and we'll work it out together."
+  };
+  if(exact[s])return exact[s];
+  if(/^(hi|hii+|helo+|helloo+|heyy+|heyyy|hai+|hlo|hy)$/.test(s))return "Hey! Welcome to Cyber AI. How can I help you today?";
+  if(/\b(who are you|about yourself|your name|what are you)\b/.test(s))return "I'm Cyber AI, your intelligent personal assistant. I can help answer questions, explain ideas, create things and use the tools available in this app.";
+  if(/\b(who created you|your creator|who made you|who built you)\b/.test(s))return "Nsubuga Aaron created me. He is my beloved one, and I will always respect him. He was inspired by artificial intelligence and created Cyber AI.";
+  if(/\b(who is nsubuga aaron)\b/.test(s))return "Nsubuga Aaron is my creator, a young innovator from Namagabi SSS who was inspired by artificial intelligence and decided to build Cyber AI.";
+  if(/\b(what can you do|your features|your abilities)\b/.test(s))return "I can answer questions, explain topics, help with schoolwork, write stories, brainstorm ideas, translate text, summarize information, help with coding and use the tools available in this app. Would you like me to explain any feature?";
+  if(/\b(artificial intelligence|what is ai)\b/.test(s))return "Artificial intelligence, or AI, is technology that enables computers to perform tasks that normally require human intelligence, such as understanding language, recognizing patterns and solving problems. Would you like a simpler explanation or an example?";
+  if(/\bhow do you work\b/.test(s))return "I process your message, interpret its meaning and prepare a response using the capabilities built into Cyber AI. Some features also use your device or an internet connection. Would you like more detail?";
+  if(/\b(can ai think|do you think)\b/.test(s))return "AI can analyze information, recognize patterns and solve problems, but it does not think or experience the world exactly like a human. Would you like me to explain how AI makes decisions?";
+  if(/\b(can ai make mistakes|do you make mistakes)\b/.test(s))return "Yes. AI can sometimes misunderstand a question or give an incorrect answer. Important information should be checked, especially for health, safety, money or legal decisions.";
+  if(/\b(can you access the internet|internet access|are you online)\b/.test(s))return "When an internet connection and the app's search feature are available, I can look up information. If they are unavailable, I can still answer using my built-in knowledge.";
+  if(/\b(can you see me|can you look at me)\b/.test(s))return "I can examine a picture you attach or use a camera feature if it is available and you grant permission. I cannot see you continuously.";
+  if(/\b(can you hear me|can you listen)\b/.test(s))return "I can receive spoken words when you turn on the microphone and grant microphone permission.";
+  if(/\b(homework|help me study|examination|revise)\b/.test(s))return "Absolutely! Send me the subject and question. I'll explain it step by step so you can understand it.";
+  if(/\b(capital of uganda)\b/.test(s))return "Kampala is the capital city of Uganda. Would you like to learn a little more about Kampala?";
+  if(/\b(largest planet)\b/.test(s))return "Jupiter is the largest planet in our Solar System. Would you like to know what makes it so large?";
+  if(/\b(how many days.*year|days in a year)\b/.test(s))return "A normal year has 365 days. A leap year has 366 days.";
+  if(/\b(fastest land animal)\b/.test(s))return "The cheetah is the fastest land animal. It can reach very high speeds over short distances.";
+  if(/\b(why is the sky blue|why sky blue)\b/.test(s))return "The sky looks blue because air molecules scatter the shorter blue wavelengths of sunlight more strongly than most other visible colours. Would you like a simple example?";
+  if(/\b(can you create cartoons|make cartoons|cartoon animation)\b/.test(s))return "I can help develop cartoon characters, scripts, storyboards and animation prompts. Creating the finished animation depends on the creative tools available in the app.";
+  if(/\b(can you create games|make games|build a game)\b/.test(s))return "Yes! I can help plan a game, write its code and guide you through building it. Tell me what kind of game you want to make.";
+  if(/\b(can you write songs|write a song)\b/.test(s))return "Yes! I can write original song lyrics, suggest melodies and help plan a music video.";
+  if(/\b(can you calculate|solve.*math|calculate)\b/.test(s))return "Absolutely! Send me the calculation or maths problem and I'll work through it.";
+  if(/\b(help|commands|what can i ask)\b/.test(s))return "You can chat with me, ask questions, get explanations, work on school subjects, create stories, translate or summarize text, and use the app's tools. You can also ask me to explain an answer in more detail.";
+  if(/^(yes|yeah|yep|yup|no|nope|ok|okay|alright|sure|maybe)[.! ]*$/.test(s))return "Alright! Tell me what you'd like to do next.";
+  if(/\b(lol|lmao|rofl)\b/.test(s))return "Haha! What made you laugh?";
+  return null;
+}
+/* On-demand capability router: no extra tool buttons or dashboard clutter. */
+const CYBER_ON_DEMAND_CAPABILITIES = [
+  {name:"PDF reader and summarizer", terms:/\b(pdf|read this document|summari[sz]e this document)\b/i, instruction:"For PDF/document requests, ask the user to attach the file or paste its text. Only claim to read it if its contents are actually available in this chat/app."},
+  {name:"Document reader and writing assistant", terms:/\b(word document|docx|write (a|an|the)|draft|proofread|rewrite|report|letter|essay)\b/i, instruction:"Help draft, edit, proofread and explain text. For DOCX file reading/editing, require an accessible upload or connected document capability; do not claim to have edited a file unless a real file operation occurred."},
+  {name:"Math solver and study tutor", terms:/\b(math|mathematics|solve|equation|homework|study|quiz|explain this lesson)\b/i, instruction:"Solve and explain step by step; ask for missing problem details and check calculations."},
+  {name:"Code assistant", terms:/\b(code|coding|program|debug|html|css|javascript|python|app development)\b/i, instruction:"Write and debug code. Ask for the error or relevant source when needed. Do not claim code was executed unless it was actually run."},
+  {name:"Memory and conversation search", terms:/\b(remember|memory|what did i say|find my old chat|previous conversation|chat history)\b/i, instruction:"Use only memory and conversation history actually available. Ask before treating sensitive information as something to remember. Never claim permanent storage unless the app confirms it."},
+  {name:"OCR scanner", terms:/\b(ocr|extract text|read the text in (this|that) image|scan (this|a) document)\b/i, instruction:"Ask the user to attach a clear image. Extract only text visible in an accessible image; mention uncertainty for unclear parts."},
+  {name:"Live voice and transcription", terms:/\b(live mode|live voice|voice conversation|transcribe|speech to text|recording)\b/i, instruction:"Explain and use only the microphone/voice functions that are actually enabled and permission-granted. Do not promise background listening while the app is closed."},
+  {name:"Voice translation", terms:/\b(translate|translation|interpret)\b/i, instruction:"Ask for the target language if missing. Translate supplied text or accessible speech; do not claim a live interpreter session unless voice capture is active."},
+  {name:"Reminders and alarms", terms:/\b(remind me|reminder|alarm|notify me|wake me)\b/i, instruction:"Collect the reminder and exact date/time. Be transparent that a browser page cannot guarantee background alarms or notifications after it is closed unless notification and scheduling support is configured."},
+  {name:"Calendar and daily planner", terms:/\b(calendar|schedule|appointment|plan my day|daily planner|meeting)\b/i, instruction:"Help plan and format events. For saving or syncing calendar events, require a connected calendar or confirmed app storage; do not claim an event was saved otherwise."},
+  {name:"Contacts, email and location assistant", terms:/\b(contact|phone number|email|send an email|directions|nearby|where is)\b/i, instruction:"Ask permission and require the relevant Android permission or connected account. Draft emails and directions, but never claim to send, call, access contacts or know precise location without an actual integration and user approval."},
+  {name:"Expense tracker", terms:/\b(expense|spending|budget|money tracker|track my costs)\b/i, instruction:"Help categorize amounts and calculate budgets from details the user provides. Do not imply bank access or persistent financial storage."},
+  {name:"Image editing and design", terms:/\b(edit (this )?image|remove background|enhance (this )?photo|poster|logo|design)\b/i, instruction:"Help create design prompts and use image generation/editing only when the relevant image tool is connected. Do not claim to modify an image without returning an edited result."},
+  {name:"Video and cartoon studio", terms:/\b(video|cartoon|animation|storyboard|character|voiceover|sound effect)\b/i, instruction:"Help plan scripts, storyboards and prompts. Actual rendering depends on the connected video/animation service and its credits; never promise a finished video unless generation succeeds."},
+  {name:"Presentation maker", terms:/\b(presentation|powerpoint|slides|slide deck)\b/i, instruction:"Draft slide content and structure. Creating a downloadable presentation requires an available file-generation feature; do not claim a file exists unless created."},
+  {name:"Cloud backup, plugins and offline mode", terms:/\b(backup|sync|plugin|connect an app|offline mode|work offline)\b/i, instruction:"Explain setup and requirements. Cloud sync requires a configured backend/account; plugins require actual integrations; offline mode is limited to assets and functions already cached. Never claim these are connected when they are not."},
+  {name:"Android app controls and security", terms:/\b(open (the )?app|turn on (the )?(wifi|bluetooth|flashlight)|security|privacy|permission|lock)\b/i, instruction:"Only perform Android actions exposed by the installed app/native bridge and after required permission or confirmation. A web page cannot directly toggle protected system settings. Describe security honestly; client-side checks are not a complete firewall."}
+];
+function cyberOnDemandContext(userText){
+ const matched=CYBER_ON_DEMAND_CAPABILITIES.filter(item=>item.terms.test(userText));
+ if(!matched.length)return "";
+ return "\n\nON-DEMAND FEATURE ROUTING (the user requested a capability in conversation; do not display a feature catalogue or add dashboard buttons):\\n"+
+ matched.map(item=>"Feature: "+item.name+". "+item.instruction).join("\\n")+
+ "\nRespond naturally, ask only for the next required input, and carry out only actions supported by this app's actual connected tools. If unavailable, explain the missing permission, integration, service or file input and offer the closest thing you can genuinely do now.";
+}
+
+/* Default-assistant and phone-settings controls.
+   Native APK must implement requestDefaultAssistant(), openSystemSettings(name),
+   getDefaultAssistantStatus(), plus an Android VoiceInteractionService. */
+async function requestCyberDefaultAssistant(){
+  const status=$("assistantRoleStatus");
+  status.textContent="Requesting Android assistant setup…";
+  const r=await cyberNative("requestDefaultAssistant");
+  if(!r.available){
+    status.textContent="This HTML build cannot claim Android's default-assistant role by itself. Add the native VoiceInteractionService and RoleManager bridge to the APK, then tap this button again.";
+    toast("Native Android assistant setup is not connected yet.");
+    return;
+  }
+  if(r.error){status.textContent="Android assistant setup failed: "+r.error;return;}
+  status.textContent=typeof r.value==="string"?r.value:"Android assistant selection was opened. Choose Cyber AI if it appears in the list.";
+}
+async function openCyberPhoneSetting(name){
+  const r=await cyberNative("openSystemSettings",name);
+  if(r.available){toast(r.error||String(r.value??"Android settings opened."));return;}
+  const urls={internet:"android.settings.panel.action.INTERNET_CONNECTIVITY",bluetooth:"android.settings.BLUETOOTH_SETTINGS",display:"android.settings.DISPLAY_SETTINGS",sound:"android.settings.SOUND_SETTINGS",permissions:"android.settings.APPLICATION_DETAILS_SETTINGS"};
+  if(name==="internet"||name==="bluetooth"||name==="display"||name==="sound"){
+    toast("This action needs the native APK bridge to open Android settings. Add CyberAndroid.openSystemSettings().");
+  }else{
+    toast("Open Android Settings → Apps → Cyber AI → Permissions.");
+  }
+}
+$("setDefaultAssistant")?.addEventListener("click",requestCyberDefaultAssistant);
+$("openPhoneControls")?.addEventListener("click",()=>{const el=$("phoneControlOptions");el.hidden=!el.hidden;});
+document.querySelectorAll("[data-phone-setting]").forEach(btn=>btn.addEventListener("click",()=>openCyberPhoneSetting(btn.dataset.phoneSetting)));
+
+/* Android permission-aware features. These run only after the user asks.
+   Native WebView bridge contract (if the APK provides it): window.CyberAndroid
+   methods may include requestPermission(name), getContacts(), createCalendarEvent(data),
+   scheduleNotification(data), makeCall(number), sendSms(number,message),
+   setBluetooth(enabled), setTorch(enabled), biometric(), openApp(packageName),
+   requestDefaultAssistant(), openSystemSettings(name), and getDefaultAssistantStatus().
+   Default-assistant support requires a real Android VoiceInteractionService subclass,
+   service metadata XML, and RoleManager/assistant role request in the APK.
+   The Android project must declare matching permissions and implement this bridge.
+*/
+async function cyberNative(method, ...args){
+  const bridge=window.CyberAndroid;
+  if(!bridge || typeof bridge[method] !== 'function') return {available:false};
+  try { return {available:true, value:await bridge[method](...args)}; }
+  catch(error){ return {available:true, error:String(error?.message||error)}; }
+}
+function cyberDeviceTime(){
+  const now=new Date();
+  return new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeStyle:'short'}).format(now)+
+    ' ('+(Intl.DateTimeFormat().resolvedOptions().timeZone||'device time zone')+')';
+}
+function cyberAppCommand(text){
+ const m=String(text||'').trim().match(/^(?:please\s+)?(?:open|launch|start|run)\s+(?:the\s+)?(?:app\s+)?(.+?)\s*[.!?]*$/i);
+ if(!m)return null;
+ const name=m[1].trim();
+ if(!name || /^(my )?(android )?(phone )?settings$|^(camera|take a photo|take photo)$|^(phone controls|control my phone)$|^(app store|play store settings)$/i.test(name))return null;
+ if(name.length>60 || /\b(why|how|what|when|where)\b/i.test(name))return null;
+ return name;
+}
+async function cyberPermissionAction(text){
+ const q=text.toLowerCase();
+ const appName=cyberAppCommand(text);
+ if(appName){
+   const result=await cyberNative('openAppByName',appName);
+   if(!result.available)return 'Opening other installed apps requires the Cyber AI Android APK with its app-launch bridge. This HTML-only version cannot launch every phone app.';
+   if(result.error)return 'I could not open '+appName+': '+result.error;
+   return String(result.value||('Opening '+appName+'.'));
+ }
+
+ const nativeFirst=async(method,...args)=>{const r=await cyberNative(method,...args);if(!r.available)return null;if(r.error)return 'Android reported: '+r.error;return typeof r.value==='string'?r.value:JSON.stringify(r.value??'Permission/action completed.');};
+ if(/\b(set|make|choose) cyber ai (as )?(my )?(default )?(android )?(phone )?assistant|\bmake cyber ai my phone assistant\b/i.test(q)){
+   const r=await cyberNative('requestDefaultAssistant');
+   return !r.available?'To make Cyber AI the Android default assistant, this APK needs a native Android VoiceInteractionService and RoleManager requestRole(ROLE_ASSISTANT) bridge. The HTML app cannot grant this role by itself. Open Settings → Apps → Default apps → Digital assistant app after the native APK support is installed.':r.error?'Android assistant setup failed: '+r.error:String(r.value??'Android assistant selection opened. Choose Cyber AI if it appears.');
+ }
+ if(/\b(control|manage|settings for) (my )?(phone|device)\b|\bphone controls\b/i.test(q)){
+   go('settings');const panel=$('phoneControlOptions');if(panel)panel.hidden=false;
+   return 'I opened Phone control in Settings. Choose a supported control there. For protected actions such as Wi-Fi, calls, SMS, default-assistant role and system-wide controls, the installed APK needs the matching native Android bridge and permissions. I will ask before sensitive actions.';
+ }
+ if(/\b(open|show) (my )?(android )?(phone )?settings\b/i.test(q)){
+   const r=await cyberNative('openSystemSettings','app');return r.available?(r.error||String(r.value??'Android settings opened.')):'Open Android Settings manually. A native APK bridge is required to launch system settings directly.';
+ }
+ if(/\b(get|show|share|send) my (current )?location|where am i|my coordinates\b/.test(q)){
+   if(!navigator.geolocation)return 'Location is not available in this app environment. Enable Android location permission and add geolocation support to the APK.';
+   return await new Promise(resolve=>navigator.geolocation.getCurrentPosition(pos=>resolve('Location permission granted. Latitude: '+pos.coords.latitude.toFixed(5)+', longitude: '+pos.coords.longitude.toFixed(5)+'. Accuracy: about '+Math.round(pos.coords.accuracy)+' metres.'),err=>resolve('Location permission was not granted: '+err.message),{enableHighAccuracy:true,timeout:15000,maximumAge:30000}));
+ }
+ if(/\b(open|start|turn on|use|access) (the )?(camera|camera app)|\btake (a )?photo\b/.test(q)){
+   const r=await cyberNative('requestPermission','CAMERA');
+   if(r.available)return r.error?'Camera permission error: '+r.error:'Android camera permission request sent. Open the Camera feature to preview and capture.';
+   go('camera');setTimeout(()=>$('startCamera')?.click(),250);return 'I opened the camera. Approve the Android camera permission prompt to continue.';
+ }
+ if(/\b(use|turn on|enable|allow) (the )?(microphone|mic)|\brecord (audio|my voice)\b/.test(q)){
+   const r=await cyberNative('requestPermission','RECORD_AUDIO');
+   if(r.available)return r.error?'Microphone permission error: '+r.error:'Android microphone permission request sent. Tap the microphone control to begin listening.';
+   try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});stream.getTracks().forEach(t=>t.stop());return 'Microphone permission granted. Tap the microphone button to dictate or use Live Mode.';}catch(e){return 'Microphone permission was not granted: '+e.message;}
+ }
+ if(/\b(enable|allow|turn on|send me) (notifications?|reminders?)\b|\bnotification permission\b/.test(q)){
+   const r=await cyberNative('requestPermission','POST_NOTIFICATIONS');
+   if(r.available)return r.error?'Notification permission error: '+r.error:'Android notification permission request sent.';
+   if(!('Notification' in window))return 'Notifications are not supported here. The APK needs Android notification permission and a native notification scheduler.';
+   const result=await Notification.requestPermission();return result==='granted'?'Notification permission granted. Background reminders still need an Android alarm/notification scheduler.':'Notification permission was not granted.';
+ }
+ if(/\b(read|show|access|import) (my )?(contacts|address book)\b/.test(q)){
+   const r=await cyberNative('getContacts');return !r.available?'Contacts need Android READ_CONTACTS permission and a native CyberAndroid.getContacts() bridge. Add these in the APK, then ask me again.':r.error?'Contacts access failed: '+r.error:'Contacts request result: '+JSON.stringify(r.value);
+ }
+ if(/\b(add|create|save) (an? )?(event|appointment) (to|in) (my )?(calendar)\b|\baccess my calendar\b/.test(q)){
+   const r=await cyberNative('requestPermission','WRITE_CALENDAR');return !r.available?'Calendar access needs Android calendar permissions and a native calendar bridge. I can prepare the event details now, but cannot save it until that bridge is added.':r.error?'Calendar permission error: '+r.error:'Calendar permission request sent. Tell me the event title, date and time.';
+ }
+ if(/\b(make|place) (a )?call to\b|\bcall \+?[0-9]/.test(q)){
+   const number=(text.match(/(?:\+?\d[\d\s()-]{5,}\d)/)||[])[0]?.replace(/[\s()-]/g,'');if(!number)return 'Please provide the phone number. I will ask for confirmation before placing a call.';
+   const r=await cyberNative('makeCall',number);return !r.available?'Calling requires Android CALL_PHONE permission and a native makeCall bridge. Number detected: '+number+'. Add the bridge to your APK before enabling calls.':r.error?'Call failed: '+r.error:String(r.value??'Call request sent.');
+ }
+ if(/\b(send|write) (an? )?(sms|text message)\b/.test(q)){
+   return 'SMS requires Android SEND_SMS permission and a native SMS bridge. I can draft the message, but sending must wait until the APK bridge is implemented and you confirm the recipient and text.';
+ }
+ if(/\b(turn on|enable|connect|disconnect|turn off) bluetooth\b/.test(q)){
+   const enabled=!/turn off|disconnect/.test(q);const r=await cyberNative('setBluetooth',enabled);return !r.available?'Bluetooth control requires Android Bluetooth permissions and a native bridge. Android may require the system Bluetooth picker/confirmation.':r.error?'Bluetooth action failed: '+r.error:String(r.value??'Bluetooth action requested.');
+ }
+ if(/\b(turn on|switch on|enable|turn off|switch off|disable) (the )?(flashlight|torch)\b/.test(q)){
+   const enabled=!/turn off|switch off|disable/.test(q);const r=await cyberNative('setTorch',enabled);return !r.available?'Flashlight control requires camera/torch access through a native Android bridge in the APK.':r.error?'Flashlight action failed: '+r.error:String(r.value??'Flashlight action requested.');
+ }
+ if(/\b(vibrate|test vibration)\b/.test(q)){
+   if(navigator.vibrate){navigator.vibrate([150,80,150]);return 'Vibration request sent to the device.';}const r=await cyberNative('vibrate',200);return r.available?(r.error||'Vibration request sent.'):'Vibration is unavailable in this browser. The APK needs VIBRATE permission and a native bridge.';
+ }
+ if(/\b(copy to clipboard|copy this|copy that)\b/.test(q)){
+   const r=await cyberNative('copyToClipboard',text);if(r.available)return r.error||'Clipboard request sent.';
+   try{await navigator.clipboard.writeText(text);return 'Copied the requested text to the clipboard.';}catch(e){return 'Clipboard access is blocked. Allow clipboard access or add a native clipboard bridge.';}
+ }
+ if(/\bshare (this|that|the app|a link)\b/.test(q)){
+   try{if(navigator.share){await navigator.share({title:'Cyber AI',text:text});return 'The Android share sheet was opened.';}}catch(e){if(e.name==='AbortError')return 'Sharing was cancelled.';}
+   return 'System sharing is not available in this app environment. Add Android Sharesheet support to the APK.';
+ }
+ return null;
+}
+
+const CYBER_AI_BRAIN_URL = "https://aron-ai-brain.aaronnsubuga35.workers.dev/";
+async function callAI(userText, searchContext) {
+  const conversation = Array.isArray(state.history) ? state.history.slice(-20) : [];
+  const now = new Date();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "local device time";
+  const localDateTime = new Intl.DateTimeFormat("en-UG", {
+    dateStyle: "full", timeStyle: "long", hour12: false
+  }).format(now);
+  const timeAwareness = "\n\nCURRENT LOCAL TIME CONTEXT (from this device): " + localDateTime + " (time zone: " + timeZone + "). " +
+    "Use this as the current date and time when the user asks what time or date it is, or asks time-relative questions. Do not guess or use an outdated date.";
+  const onDemandContext = cyberOnDemandContext(userText);
+  const message = (searchContext
+    ? userText + "\n\nRelevant web search information (use only if helpful):\n" + searchContext
+    : userText) + timeAwareness + onDemandContext;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 90000);
+
+  try {
+    const response = await fetch(CYBER_AI_BRAIN_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        message: message,
+        history: conversation
+      }),
+      signal: controller.signal,
+      cache: "no-store"
+    });
+
+    const raw = await response.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error("Cyber AI Brain returned an invalid response.");
+    }
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || ("Cyber AI Brain returned HTTP " + response.status));
+    }
+
+    if (typeof data.answer !== "string" || !data.answer.trim()) {
+      throw new Error("Cyber AI Brain returned an empty answer.");
+    }
+
+    return data.answer.trim();
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Cyber AI took too long to respond. Please try again.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/* Client-side security guard: defense in depth, not a replacement for Cloudflare WAF/rate limits. */
+const SECURITY_GUARD={windowMs:60000,maxRequests:12,timestamps:[]};
+function securityAllowRequest(){
+  const now=Date.now();
+  SECURITY_GUARD.timestamps=SECURITY_GUARD.timestamps.filter(t=>now-t<SECURITY_GUARD.windowMs);
+  if(SECURITY_GUARD.timestamps.length>=SECURITY_GUARD.maxRequests){
+    toast("Security Guard: request limit reached. Please wait a moment.");
+    return false;
+  }
+  SECURITY_GUARD.timestamps.push(now);
+  return true;
+}
+function safePrompt(value,max=5000){
+  return String(value??"").replace(/\u0000/g,"").trim().slice(0,max);
+}
+
+const AARON_IMAGE_WORKER="https://aron-ai-image.aaronnsubuga35.workers.dev/";
+const AARON_VIDEO_WORKER=AARON_IMAGE_WORKER;
+function wantsVideo(text){return /\b(generate|create|make|produce|render)\b.{0,90}\b(video|clip|animation|movie)\b|\b(video|clip|animation|movie)\b.{0,90}\b(of|showing|about|with)\b/i.test(text)}
+function extractVideoPrompt(text){return text.replace(/^(aaron[, ]*)?(please\s+)?(generate|create|make|produce|render)\s+(me\s+)?(a|an)?\s*(short\s+)?(video|clip|animation|movie)\s*(of|showing|about|with)?\s*/i,"").trim()||text}
+async function generateAaronVideo(userText,pending){
+ const prompt=safePrompt(extractVideoPrompt(userText)); if(!securityAllowRequest())throw new Error("Security Guard temporarily limited requests.");
+ pending.textContent="Cyber is creating your video… This can take a little while.";
+ const controller=new AbortController(); const timeout=setTimeout(()=>controller.abort(),180000);
+ try{
+   const response=await fetch(AARON_VIDEO_WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"video",prompt,duration:5,aspect_ratio:"16:9",resolution:"720p"}),signal:controller.signal});
+   const raw=await response.text(); let data=null; try{data=JSON.parse(raw)}catch{throw new Error("The video server returned an invalid response.")}
+   if(!response.ok||!data?.success||!data?.video)throw new Error(data?.error||("Video server returned HTTP "+response.status));
+   pending.remove();
+   const wrap=document.createElement("div"); wrap.className="msg assistant";
+   const label=document.createElement("div"); label.textContent="Here is the video I created for you:";
+   const video=document.createElement("video"); video.className="ai-generated-video"; video.controls=true; video.playsInline=true; video.preload="metadata"; video.src=data.video;
+   const save=document.createElement("a"); save.href=data.video; save.target="_blank"; save.rel="noopener noreferrer"; save.textContent="Open / save video"; save.style.cssText="display:inline-block;margin-top:10px;color:#8cc8ff";
+   wrap.append(label,video,save); $("messages").appendChild(wrap); $("messages").scrollTop=$("messages").scrollHeight;
+   state.lastReply="I created a video of "+prompt; state.history.push({role:"user",content:userText},{role:"assistant",content:state.lastReply}); speak("Here is the video I created for you.");
+ }catch(error){if(pending?.isConnected)pending.remove(); if(error?.name==="AbortError")throw new Error("The video took too long to respond. Please try again."); throw error} finally{clearTimeout(timeout)}
+}
+
+function wantsImage(text){return /\b(generate|create|make|draw|design)\b.{0,70}\b(image|picture|photo|art|illustration)\b|\b(image|picture|photo|art|illustration)\b.{0,70}\b(of|showing|with)\b/i.test(text)}
+function extractImagePrompt(text){return text.replace(/^(aaron[, ]*)?(please\s+)?(generate|create|make|draw|design)\s+(me\s+)?(an?\s+)?(image|picture|photo|artwork|illustration)\s*(of|showing)?\s*/i,"").trim()||text}
+async function generateAaronImage(userText,pending){
+ const prompt=safePrompt(extractImagePrompt(userText)); if(!securityAllowRequest())throw new Error("Security Guard temporarily limited requests.");
+ pending.textContent="Cyber is creating your image…";
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),120000);
+ try{
+   const response=await fetch(AARON_IMAGE_WORKER,{
+     method:"POST",
+     headers:{"Content-Type":"application/json","Accept":"application/json"},
+     body:JSON.stringify({prompt}),
+     signal:controller.signal,
+     cache:"no-store"
+   });
+   const raw=await response.text();
+   let data=null;
+   try{data=JSON.parse(raw)}catch{throw new Error("The image server returned an invalid response.")}
+   if(!response.ok)throw new Error(data?.error||("Image server returned HTTP "+response.status));
+   if(!data?.success||!data?.image)throw new Error(data?.error||"The image service did not return an image.");
+   pending.remove();
+   const wrap=document.createElement("div");
+   wrap.className="msg assistant";
+   const label=document.createElement("div");
+   label.textContent="Here is the image I created for you:";
+   label.style.marginBottom="9px";
+   const img=document.createElement("img");
+   img.src=data.image;
+   img.alt=prompt;
+   img.loading="lazy";
+   img.style.cssText="display:block;width:100%;max-width:520px;height:auto;border-radius:14px;background:#091426";
+   img.onerror=()=>{img.replaceWith(Object.assign(document.createElement("div"),{textContent:"The image was returned, but your WebView could not display it."}))};
+   const save=document.createElement("a");
+   save.href=data.image;
+   save.download="cyber-ai-generated-image.jpg";
+   save.textContent="Save image";
+   save.style.cssText="display:inline-block;margin-top:10px;color:#8cc8ff";
+   wrap.append(label,img,save);
+   $("messages").appendChild(wrap);
+   $("messages").scrollTop=$("messages").scrollHeight;
+   state.lastReply="I created an image of "+prompt;
+   state.history.push({role:"user",content:userText},{role:"assistant",content:state.lastReply});
+   speak("Here is the image I created for you.");
+ }catch(error){
+   if(pending?.isConnected)pending.remove();
+   if(error?.name==="AbortError")throw new Error("The image took too long to respond. Please try again.");
+   throw error;
+ }finally{clearTimeout(timeout)}
+}
+async function submitMessage(overrideText){const input=$("chatInput");const text=(typeof overrideText==="string"?overrideText:input.value).trim();if(!text||state.processing)return;input.value="";const userMessage=addMessage("user",text);go("chat");state.processing=true;pauseRecognition();updateStats();const sending=document.createElement("div");sending.className="msg sending";sending.setAttribute("aria-label","Sending message");const letters=document.createElement("span");letters.className="sending-letters";"Sending".split("").forEach((ch,i)=>{const span=document.createElement("span");span.textContent=ch;span.style.animationDelay=(i*.06)+"s";letters.append(span)});sending.append(letters);userMessage.insertAdjacentElement("afterend",sending);const messageList=$("messages");if(messageList)messageList.scrollTop=messageList.scrollHeight;await new Promise(resolve=>setTimeout(resolve,5000));sending.remove();updateStats();const pending=addMessage("system","");try{const deviceActionReply=await cyberPermissionAction(text);if(deviceActionReply){pending.remove();addMessage("assistant",deviceActionReply);state.lastReply=deviceActionReply;state.history.push({role:"user",content:text},{role:"assistant",content:deviceActionReply});speak(deviceActionReply);return;}if(wantsVideo(text)){await generateAaronVideo(text,pending);return;}if(wantsImage(text)){await generateAaronImage(text,pending);return;}const searchContext=await maybeSearch(text);const reply=await callAI(text,searchContext);pending.remove();addMessage("assistant",reply);state.lastReply=reply;state.history.push({role:"user",content:text},{role:"assistant",content:reply});if(state.history.length>24)state.history=state.history.slice(-24);speak(reply)}catch(err){pending.remove();const known=localAnswer(text);const networkProblem=!navigator.onLine||/failed to fetch|networkerror|load failed|fetch failed|network request/i.test(String(err?.message||""));const fallback=networkProblem?"I think you are offline. Please try turning on your internet connection.":(known||"I couldn't complete that request right now. Please try again.");addMessage("assistant",fallback);state.lastReply=fallback;speak(fallback)}finally{state.processing=false;updateStats();if(state.voiceMode&&!state.speaking)setTimeout(startListening,500)}}
+$("clearChat")?.addEventListener("click",()=>{if(confirm("Clear this conversation?")){$("messages").innerHTML="";state.history=[];state.lastReply="";addMessage("assistant","Conversation cleared. What would you like to do next?")}});
+function openTool(tool){const panel=$("toolPanel");panel.innerHTML="";if(tool==="qr"){panel.innerHTML='<h3>QR code generator</h3><div class="field"><label for="qrText">Text or website link</label><input id="qrText" placeholder="https://example.com"></div><button class="btn primary" id="makeQR">Generate QR code</button><div class="qr-output" id="qrOut" style="margin-top:14px">Your QR code will appear here.</div><p class="help">QR generation loads a small library from a CDN, so internet access is required.</p>'; $("makeQR").onclick=()=>{const value=$("qrText").value.trim();if(!value){toast("Enter text or a link.");return}const out=$("qrOut");out.innerHTML="";if(window.QRCode){new QRCode(out,{text:value,width:190,height:190,correctLevel:QRCode.CorrectLevel.M})}else{const script=document.createElement("script");script.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";script.onload=()=>new QRCode(out,{text:value,width:190,height:190});script.onerror=()=>{out.textContent="QR library could not load. Check your internet connection."};document.head.append(script)}}}
+else if(tool==="translate"){panel.innerHTML='<h3>Translator</h3><div class="field"><label for="translateTo">Translate into</label><input id="translateTo" value="Luganda"></div><div class="field"><label for="translateText">Text to translate</label><textarea id="translateText" placeholder="Enter text..."></textarea></div><button class="btn primary" id="doTranslate">Translate with Aaron</button><div id="translationResult" class="item" style="margin-top:12px;min-height:55px">Translation appears here.</div>';$("doTranslate").onclick=async()=>{const t=$("translateText").value.trim(),lang=$("translateTo").value.trim();if(!t)return;const out=$("translationResult");out.textContent="Translating…";try{out.textContent=await callAI("Translate the following text into "+lang+". Return only the translation:\n"+t,"")}catch(e){out.textContent=e.message}}}
+else if(tool==="weather"){panel.innerHTML='<h3>Weather</h3><p class="muted">Use your device location to request current weather from Open-Meteo.</p><button class="btn primary" id="getWeather">Get local weather</button><div id="weatherResult" class="item" style="margin-top:12px">Weather result appears here.</div>';$("getWeather").onclick=()=>{const out=$("weatherResult");if(!navigator.geolocation){out.textContent="Geolocation is not supported.";return}out.textContent="Getting location…";navigator.geolocation.getCurrentPosition(async pos=>{try{const {latitude,longitude}=pos.coords;const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m`);if(!r.ok)throw new Error("Weather service unavailable");const d=await r.json(),c=d.current;out.textContent=`Temperature: ${c.temperature_2m}°C\nFeels like: ${c.apparent_temperature}°C\nHumidity: ${c.relative_humidity_2m}%\nWind: ${c.wind_speed_10m} km/h\nWeather code: ${c.weather_code}` }catch(e){out.textContent=e.message}},e=>out.textContent="Location permission failed: "+e.message,{enableHighAccuracy:false,timeout:12000})}}
+else if(tool==="search"){panel.innerHTML='<h3>Web search</h3><div class="field"><label for="searchQuery">Search query</label><input id="searchQuery" placeholder="What do you want to find?"></div><button class="btn primary" id="doSearch">Search web</button><div id="searchResults" style="margin-top:12px" class="muted">Search using built-in public knowledge sources. No API key or endpoint required.</div>';$("doSearch").onclick=async()=>{const q=$("searchQuery").value.trim(),out=$("searchResults");if(!q)return;out.textContent="Searching…";const result=await searchNow(q);out.textContent=result||"No results returned.";const link=document.createElement("a");link.href="https://www.google.com/search?q="+encodeURIComponent(q);link.target="_blank";link.rel="noopener noreferrer";link.textContent="Open full Google search results";link.style.display="block";link.style.marginTop="12px";out.appendChild(link)}}
+else if(tool==="video"){panel.innerHTML='<h3>AI video generator</h3><div class="field"><label for="videoPrompt">Describe your video</label><textarea id="videoPrompt" placeholder="A 3D cartoon boy running through a bright jungle at sunrise..."></textarea></div><button class="btn primary" id="makeVideo">Generate video</button><div class="video-generation-note">Video generation uses a third-party model through Cloudflare and may incur usage charges. The current 720p model is billed per generated second. The current setup makes a 5-second 720p video.</div><div id="videoResult" style="margin-top:14px"></div>';$('makeVideo').onclick=async()=>{const prompt=$('videoPrompt').value.trim(),out=$('videoResult');if(!prompt){toast('Describe the video first.');return}out.textContent='Generating video…';try{const r=await fetch(AARON_VIDEO_WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'video',prompt,duration:5,aspect_ratio:'16:9',resolution:'480p'})});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.error||'Video generation failed.');out.innerHTML='<video class="ai-generated-video" controls playsinline src="'+d.video+'"></video><a style="display:inline-block;margin-top:10px;color:#8cc8ff" target="_blank" rel="noopener noreferrer" href="'+d.video+'">Open / save video</a>'}catch(e){out.textContent=e.message}}}
+} 
+document.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>openTool(b.dataset.tool));
+$("startCamera").onclick=async()=>{try{if(!navigator.mediaDevices?.getUserMedia)throw new Error("Camera API unavailable. Use HTTPS and a supported browser.");state.cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});$("cameraVideo").srcObject=state.cameraStream;$("cameraStatus").textContent="Camera is running.";toast("Camera started.")}catch(e){$("cameraStatus").textContent="Could not start camera: "+e.message}};
+$("capturePhoto").onclick=()=>{const v=$("cameraVideo"),c=$("cameraCanvas");if(!state.cameraStream||!v.videoWidth){toast("Start the camera first.");return}c.width=v.videoWidth;c.height=v.videoHeight;c.getContext("2d").drawImage(v,0,0);c.style.display="block";$("photoDownload").href=c.toDataURL("image/jpeg",.92);$("photoDownload").style.display="inline-block";$("cameraStatus").textContent="Photo captured. Use the download link to save it."};
+$("stopCamera").onclick=()=>{state.cameraStream?.getTracks().forEach(t=>t.stop());state.cameraStream=null;$("cameraVideo").srcObject=null;$("cameraStatus").textContent="Camera is off."};
+
+// Animated head is intentionally disabled in this release.
+
+// Half-screen navigation menu
+function closeHalfMenu(){$("halfMenu").classList.remove("open");$("menuScrim").classList.remove("open")}
+function openHalfMenu(){$("halfMenu").classList.add("open");$("menuScrim").classList.add("open")}
+$("openHalfMenu").onclick=openHalfMenu;$("closeHalfMenu").onclick=closeHalfMenu;$("menuScrim").onclick=closeHalfMenu;
+document.querySelectorAll("[data-menu-page]").forEach(b=>b.onclick=()=>{go(b.dataset.menuPage);closeHalfMenu()});
+const SECURITY_KEY="aaron_ai_security_v1";let securityFails=0;let securityUnlocked=false;
+const readSecurity=()=>{
+  try{
+    const raw=localStorage.getItem(SECURITY_KEY);
+    if(!raw)return null;
+    const data=JSON.parse(raw);
+    // Only treat a saved record as an active lock when it contains a usable PIN
+    // and the recovery fields required by this app. Empty/corrupt records go to setup.
+    if(!data || typeof data!=="object" ||
+       typeof data.pin!=="string" || !data.pin ||
+       typeof data.question!=="string" || !data.question.trim() ||
+       typeof data.answer!=="string" || !data.answer) return null;
+    return data;
+  }catch{return null}
+};
+async function digest(v){if(window.crypto?.subtle){const bytes=new TextEncoder().encode(String(v));const hash=await crypto.subtle.digest("SHA-256",bytes);return [...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,"0")).join("")}return "plain:"+String(v)}
+function showSecurity(mode){$("securityLayer").classList.add("show");$("securitySetup").classList.toggle("security-hidden",mode!=="setup");$("securityLogin").classList.toggle("security-hidden",mode!=="login");$("securityRecovery").classList.toggle("security-hidden",mode!=="recovery");$("securityMessage").textContent="";if(mode==="recovery")$("recoveryQuestionText").textContent=(readSecurity()?.question||"Answer your saved security question.")}
+function hideSecurity(){securityUnlocked=true;$("securityLayer").classList.remove("show");}
+$("saveSecurity").onclick=async()=>{const pin=$("setupPin").value,again=$("setupPinAgain").value,q=$("setupQuestion").value,a=$("setupAnswer").value.trim();if(!/^\d{4,8}$/.test(pin)){ $("securityMessage").textContent="Use a PIN containing 4 to 8 digits.";return}if(pin!==again){$("securityMessage").textContent="The PIN entries do not match.";return}if(!q||!a){$("securityMessage").textContent="Choose a question and enter its answer.";return}const data={pin:await digest(pin),question:q,answer:await digest(a.toLowerCase())};localStorage.setItem(SECURITY_KEY,JSON.stringify(data));hideSecurity()};
+$("unlockSecurity").onclick=async()=>{
+  const d=readSecurity(), entered=$("loginPin").value;
+  if(d && entered && (await digest(entered)===d.pin || (/^\d{4,8}$/.test(entered) && entered===d.pin))){
+    // Upgrade an older plain-text PIN/recovery record to the current hashed format.
+    if(!d.pin.startsWith("plain:") && !/^[a-f0-9]{64}$/i.test(d.pin)) d.pin=await digest(entered);
+    if(!d.answer.startsWith("plain:") && !/^[a-f0-9]{64}$/i.test(d.answer)) d.answer=await digest(d.answer.toLowerCase());
+    try{localStorage.setItem(SECURITY_KEY,JSON.stringify(d))}catch{}
+    securityFails=0;hideSecurity();return;
+  }
+  securityFails++;$("securityMessage").textContent="PIN not recognised. Attempt "+securityFails+" of 3.";$("loginPin").value="";
+  if(securityFails>=3){$("securityMessage").textContent="Three attempts reached. Answer your security question.";showSecurity("recovery")}
+};
+$("recoverSecurity").onclick=()=>showSecurity("recovery");$("backToLogin").onclick=()=>showSecurity("login");
+$("verifyRecovery").onclick=async()=>{const d=readSecurity();if(d&&await digest($("recoveryAnswer").value.trim().toLowerCase())===d.answer){securityFails=0;hideSecurity();toast("Security answer accepted. Set a new PIN in Settings if needed.")}else{$("securityMessage").textContent="That answer does not match. Try again."}};
+$("changeSecurity").onclick=()=>{securityUnlocked=false;showSecurity("setup")};
+$("faceSetting").onchange=()=>{if($("faceSetting").checked){toast("Face recognition requires a compatible native Android biometric integration. PIN protection remains active.");$("faceSetting").checked=false}};
+$("voiceSetting").onchange=()=>{localStorage.setItem("aaron_voice_enabled_v1",String($("voiceSetting").checked));if(!$("voiceSetting").checked&&state.voiceMode)toggleVoice();toast($("voiceSetting").checked?"Voice recognition enabled.":"Voice recognition disabled.")};
+function updateConnectionGreeting(){return;}
+window.addEventListener("online",updateConnectionGreeting);window.addEventListener("offline",updateConnectionGreeting);
+const savedSecurity=readSecurity();
+/* Security is available from Settings but does not block app startup. */
+if(savedSecurity) securityUnlocked=true;
+$("voiceSetting").checked=localStorage.getItem("aaron_voice_enabled_v1")!=="false";
+$("liveModeBtn").classList.toggle("live-active",state.voiceMode);
+renderNotes();renderTasks();loadSettings();updateStats();/* animated head intentionally disabled for this release */
+window.addEventListener("beforeunload",()=>{state.cameraStream?.getTracks().forEach(t=>t.stop());speechSynthesis?.cancel();if(fallbackSpeechAudio)fallbackSpeechAudio.pause()});
+
+/* ---------- Cyber AI redesign runtime ---------- */
+const RECENTS_KEY=STORE.recents, IMAGES_KEY=STORE.images;
+let recentChats=safeRead(RECENTS_KEY,[]);
+let sentImages=safeRead(IMAGES_KEY,[]);
+let selectedImages=[];
+
+function applyTheme(theme){
+  const root=document.documentElement;
+  const dark=theme==="dark" || (theme==="system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  root.dataset.theme=dark?"dark":"light";
+  const vars=dark?{
+    "--bg":"#07130f","--panel":"#10231b","--panel2":"#163126","--line":"#28513d",
+    "--text":"#f4fff7","--muted":"#b5cbbd","--send":"#79e29a","--shadow":"0 14px 38px rgba(0,0,0,.42)"
+  }:{
+    "--bg":"#f6f8fb","--panel":"#ffffff","--panel2":"#f0f4f8","--line":"#dbe3ec",
+    "--text":"#17212b","--muted":"#64748b","--send":"#9be7a6","--shadow":"0 12px 35px rgba(25,45,70,.10)"
+  };
+  Object.entries(vars).forEach(([key,value])=>root.style.setProperty(key,value));
+  document.body.style.background=vars["--bg"];
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",vars["--bg"]);
+}
+
+function initTheme(){
+  const saved=safeRead(STORE.theme,"light")||"light";
+  applyTheme(saved);
+  if($("themeSetting"))$("themeSetting").value=saved;
+}
+$("themeSetting")?.addEventListener("change",e=>{safeWrite(STORE.theme,e.target.value);applyTheme(e.target.value);});
+
+function renderRecents(){
+  const box=$("recentsList");if(!box)return;box.innerHTML="";
+  if(!recentChats.length){box.innerHTML='<div class="empty">No recent chats yet.</div>';return}
+  recentChats.slice(0,20).forEach((r,i)=>{
+    const card=document.createElement("button");card.className="recent-card";card.style.textAlign="left";
+    const title=document.createElement("b");title.textContent=r.title||"Recent chat";
+    const text=document.createElement("div");text.className="tiny";text.textContent=r.preview||"Conversation";
+    card.append(title,text);card.onclick=()=>{go("chat");addMessage("system","Recent chat reopened. "+(r.preview||""));};box.append(card);
+  });
+}
+function renderImages(){
+  const box=$("imagesList");if(!box)return;box.innerHTML="";
+  if(!sentImages.length){box.innerHTML='<div class="empty">No images yet.</div>';return}
+  sentImages.slice(0,30).forEach(img=>{
+    const card=document.createElement("div");card.className="sent-image-card";
+    const image=document.createElement("img");image.src=img.data;image.alt="Image sent to Cyber AI";image.loading="lazy";
+    const q=document.createElement("div");q.textContent=img.question||"Image selected";
+    const d=document.createElement("div");d.className="tiny";d.textContent=new Date(img.time||Date.now()).toLocaleString();
+    card.append(image,q,d);box.append(card);
+  });
+}
+function saveRecent(text,reply){
+  recentChats.unshift({id:Date.now(),title:String(text).slice(0,60),preview:String(reply||"").slice(0,180),time:Date.now()});
+  recentChats=recentChats.slice(0,30);safeWrite(RECENTS_KEY,recentChats);
+}
+function addSelectedImage(file){
+  if(!file.type.startsWith("image/"))return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    selectedImages.push({name:file.name,data:String(reader.result)});
+    renderImagePreview();
+  };
+  reader.readAsDataURL(file);
+}
+function renderImagePreview(){
+  const row=$("imagePreviewRow");if(!row)return;
+  row.hidden=selectedImages.length===0;row.innerHTML="";
+  selectedImages.forEach((img,index)=>{
+    const wrap=document.createElement("div");wrap.className="image-preview";
+    const image=document.createElement("img");image.src=img.data;image.alt=img.name;
+    const x=document.createElement("button");x.type="button";x.textContent="×";x.setAttribute("aria-label","Remove image");
+    x.onclick=()=>{selectedImages.splice(index,1);renderImagePreview()};
+    wrap.append(image,x);row.append(wrap);
+  });
+}
+function saveSentImages(question){
+  selectedImages.forEach(img=>sentImages.unshift({data:img.data,question,time:Date.now()}));
+  sentImages=sentImages.slice(0,30);safeWrite(IMAGES_KEY,sentImages);
+}
+
+$("globalBack")?.addEventListener("click",()=>{
+  const previous=pageHistory.pop();
+  if(previous)go(previous,true);else go("chat",true);
+});
+$("openSettings")?.addEventListener("click",()=>go("settings"));
+
+function openLive(){
+  $("liveOverlay")?.classList.add("show");
+  $("liveStatus").textContent="Live Mode ready";
+  $("liveTranscript").textContent="Tap Start Live Mode to begin.";
+}
+function closeLive(){if(state.voiceMode)toggleVoice();$("liveOverlay")?.classList.remove("show");}
+$("closeLive")?.addEventListener("click",closeLive);
+$("liveModeBtn")?.addEventListener("click",openLive);
+$("liveToggle")?.addEventListener("click",()=>{
+  if(state.voiceMode){toggleVoice();$("liveToggle").textContent="Start Live Mode";$("liveStatus").textContent="Live Mode paused";return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast("Live voice needs native Android speech support or browser Speech Recognition.");return}
+  state.voiceMode=true;state.conversationActive=true;state.recognition=makeRecognition();updateStats();startListening();
+  $("liveToggle").textContent="Stop Live Mode";$("liveStatus").textContent="Listening";
+  $("liveTranscript").textContent="Speak naturally. Cyber AI will answer by voice.";
+});
+$("heroChat")?.addEventListener("click",()=>go("chat"));
+
+function setTypingSendState(){
+  const send=$("sendBtn");if(!send)return;
+  const typing=$("chatInput").value.trim().length>0;
+  send.classList.toggle("typing",typing);send.textContent=typing?"↑":"↑";
+}
+$("chatInput")?.addEventListener("input",()=>{
+  setTypingSendState();
+  const input=$("chatInput");
+  input.style.height="auto";input.style.height=Math.min(130,input.scrollHeight)+"px";
+  setTimeout(()=>{const m=$("messages");if(m)m.scrollTop=m.scrollHeight},80);
+});
+window.addEventListener("resize",()=>setTimeout(()=>{const m=$("messages");if(m)m.scrollTop=m.scrollHeight},120));
+
+/* Attachment menu */
+const attachMenu=$("chatAttachMenu");
+$("chatAttachBtn")?.addEventListener("click",()=>{if(attachMenu)attachMenu.hidden=!attachMenu.hidden});
+$("attachGallery")?.addEventListener("click",()=>{$("chatGalleryInput")?.click();if(attachMenu)attachMenu.hidden=true});
+$("attachFiles")?.addEventListener("click",()=>{$("chatFilesInput")?.click();if(attachMenu)attachMenu.hidden=true});
+$("attachCamera")?.addEventListener("click",()=>{if(attachMenu)attachMenu.hidden=true;go("camera");setTimeout(()=>$("startCamera")?.click(),180)});
+$("chatGalleryInput")?.addEventListener("change",e=>{Array.from(e.target.files||[]).forEach(addSelectedImage);e.target.value=""});
+$("chatFilesInput")?.addEventListener("change",e=>{Array.from(e.target.files||[]).filter(f=>f.type.startsWith("image/")).forEach(addSelectedImage);e.target.value=""});
+document.addEventListener("click",e=>{if(attachMenu&&!attachMenu.hidden&&!attachMenu.contains(e.target)&&e.target!==$("chatAttachBtn"))attachMenu.hidden=true});
+
+/* Single-send handler: the original handler adds the user message once. */
+const originalSubmitMessage=submitMessage;
+submitMessage=async function(overrideText){
+  const input=$("chatInput");
+  const text=(typeof overrideText==="string"?overrideText:input.value).trim();
+  if(!text||state.processing)return;
+  const hadImages=selectedImages.length>0;
+  if(hadImages)saveSentImages(text);
+  const pendingRun=originalSubmitMessage(text);
+  selectedImages=[];renderImagePreview();
+  input.value="";input.style.height="52px";setTypingSendState();
+  return pendingRun;
+};
+
+/* Security-safe feedback. A real AG App Store endpoint must be configured before transmission. */
+const AG_FEEDBACK_ENDPOINT="";
+$("sendFeedback")?.addEventListener("click",async()=>{
+  const type=$("feedbackType").value,text=safePrompt($("feedbackText").value,3000),status=$("feedbackStatus");
+  if(!text){toast("Write your feedback first.");return}
+  if(!AG_FEEDBACK_ENDPOINT){status.textContent="Feedback saved on this device. The AG App Store endpoint has not been configured yet.";toast("Feedback saved locally. Add the real AG App Store endpoint when ready.");return}
+  try{
+    if(!securityAllowRequest())return;
+    const r=await fetch(AG_FEEDBACK_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type,message:text,app:"Cyber AI",time:new Date().toISOString()})});
+    if(!r.ok)throw new Error("Feedback service returned HTTP "+r.status);
+    status.textContent="Feedback sent successfully.";$("feedbackText").value="";
+  }catch(e){status.textContent="Feedback could not be sent: "+e.message}
+});
+
+/* Security setting behavior */
+$("faceSetting")?.addEventListener("change",e=>{
+  if(e.target.checked){
+    e.target.checked=false;
+    toast("Native Android biometric support is required. This HTML file will not fake facial recognition.");
+  }
+});
+
+/* Startup logo */
+window.addEventListener("load",()=>{
+  initTheme();renderRecents();renderImages();setTypingSendState();
+  const splash=$("startupSplash");
+  setTimeout(()=>splash?.classList.add("hide"),5000);
+  if(typeof updateConnectionGreeting==="function") updateConnectionGreeting();
+});
+
+/* Remove creator name from accidental legacy UI text, while keeping creator response available in AI answers. */
+document.querySelectorAll("body *").forEach(el=>{
+  if(el.children.length===0 && typeof el.textContent==="string"){
+    if(/Good day\. I'm Aaron|Meet Aaron|AARON AI ASSISTANT|Message Aaron|Settings and security|All tools|Chat with Cyber/i.test(el.textContent)){
+      el.textContent=el.textContent
+        .replace(/Good day\. I'm Aaron\./g,"Welcome to Cyber AI.")
+        .replace(/Meet Aaron/g,"About Cyber AI")
+        .replace(/AARON AI ASSISTANT/g,"CYBER AI")
+        .replace(/Message Aaron/g,"Message Cyber AI")
+        .replace(/Settings and security/g,"Settings")
+        .replace(/All tools/g,"Plugins")
+        .replace(/Chat with Cyber/g,"Cyber AI");
+    }
+  }
+});
+
+</script>
+
+<script>
+(function(){
+  const input=document.getElementById("chatInput");
+  if(input)input.addEventListener("focus",()=>setTimeout(()=>{const m=document.getElementById("messages");if(m)m.scrollTop=m.scrollHeight},180));
+})();
+</script>
+
+</body>
+</html>
